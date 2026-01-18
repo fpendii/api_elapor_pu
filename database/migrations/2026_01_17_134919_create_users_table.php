@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('nomor_wa');
             $table->string('foto_ktp')->nullable();
             $table->enum('role', ['user', 'admin'])->default('user'); // Membedakan akses
+            $table->enum('verifikasi', ['menunggu', 'acc', 'tidak-acc'])->default('menunggu');
             $table->rememberToken();
             $table->timestamps();
         });
