@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('reports', function (Blueprint $table) {
+            $table->id();
+            // Menghubungkan ke user yang melapor
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('kategori'); // Jalan, Jembatan, Drainase, dll.
+            $table->string('judul');
+            $table->string('lokasi');
+            $table->text('deskripsi');
+            $table->string('foto_kerusakan');
+            $table->enum('status', ['Menunggu', 'Proses', 'Selesai','Ditolak'])->default('Menunggu');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('reports');
+    }
+};
