@@ -39,10 +39,6 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     */
     Route::resource('laporan', ReportControllerAdmin::class)
         ->except(['edit', 'update', 'destroy']);
-
-    Route::get('laporan-masuk', [ReportControllerAdmin::class, 'laporan'])
-        ->name('laporan.masuk');
-
     /*
     |--------------------------------------------------------------------------
     | Status Actions
