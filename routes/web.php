@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthentikasiController;
 use App\Http\Controllers\Admin\ReportControllerAdmin;
 use App\Http\Controllers\ReportCommentController;
+use App\Http\Controllers\Admin\DashboardControllerAdmin;
 use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 
 /*
@@ -12,19 +13,24 @@ use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', fn() => view('welcome'));
+// Route::get('/', fn() => view('welcome'));
 
 /*
 |--------------------------------------------------------------------------
 | Auth
 |--------------------------------------------------------------------------
 */
-Route::get('/login', [AuthentikasiController::class, 'showLogin'])->name('login');
+
+Route::get('/', [AuthentikasiController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthentikasiController::class, 'login']);
+
+// Routes Register
+Route::get('/register', [AuthentikasiController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthentikasiController::class, 'register']);
+
 Route::post('/logout', [AuthentikasiController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
-
 /*
 |--------------------------------------------------------------------------
 | Admin Area
@@ -32,6 +38,10 @@ Route::post('/logout', [AuthentikasiController::class, 'logout'])
 */
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
+    /*
+
+*/
+    Route::get('/dashboard', [DashboardControllerAdmin::class, 'index'])->name('dashboard');
     /*
     |--------------------------------------------------------------------------
     | Laporan
@@ -53,6 +63,24 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('laporan/{report}/selesai', [ReportControllerAdmin::class, 'selesai'])
         ->name('laporan.selesai');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Manajemen User
+    |--------------------------------------------------------------------------
+    */
+    Route::resource('users', App\Http\Controllers\Admin\UserControllerAdmin::class)
+        ->only(['index', 'store', 'destroy']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Laporan
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/laporan/export/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'excel'])
+        ->name('laporan.export.excel');
+
+    Route::get('/export/pdf/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'pdf'])
+        ->name('laporan.export.pdf');
 
     /*
     |--------------------------------------------------------------------------

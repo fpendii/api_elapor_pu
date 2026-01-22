@@ -59,32 +59,49 @@
 {{-- ===================== --}}
 {{-- NAV TAB --}}
 {{-- ===================== --}}
-<ul class="nav nav-tabs mb-3 align-items-center">
+<ul class="nav nav-tabs mb-3 align-items-center justify-content-between">
 
-    <li class="nav-item">
-        <a class="nav-link {{ $status === 'Semua' ? 'active fw-semibold' : '' }}"
-           href="{{ url('admin/laporan?status=Semua') }}">
-            Semua
-        </a>
-    </li>
-
-    @foreach (['Menunggu','Proses','Selesai','Ditolak'] as $tab)
+    {{-- TAB --}}
+    <div class="d-flex">
         <li class="nav-item">
-            <a class="nav-link {{ $status === $tab ? 'active fw-semibold' : '' }}"
-               href="{{ url('admin/laporan?status='.$tab) }}">
-                {{ $tab }}
-
-                {{-- Badge hanya untuk Menunggu & Proses --}}
-                @if(in_array($tab, ['Menunggu','Proses']) && $count[$tab] > 0)
-                    <span class="badge bg-danger ms-1">
-                        {{ $count[$tab] }}
-                    </span>
-                @endif
+            <a class="nav-link {{ $status === 'Semua' ? 'active fw-semibold' : '' }}"
+               href="{{ url('admin/laporan?status=Semua') }}">
+                Semua
             </a>
         </li>
-    @endforeach
+
+        @foreach (['Menunggu','Proses','Selesai','Ditolak'] as $tab)
+            <li class="nav-item">
+                <a class="nav-link {{ $status === $tab ? 'active fw-semibold' : '' }}"
+                   href="{{ url('admin/laporan?status='.$tab) }}">
+                    {{ $tab }}
+
+                    @if(in_array($tab, ['Menunggu','Proses']) && $count[$tab] > 0)
+                        <span class="badge bg-danger ms-1">
+                            {{ $count[$tab] }}
+                        </span>
+                    @endif
+                </a>
+            </li>
+        @endforeach
+    </div>
+
+    {{-- EXPORT --}}
+    <div class="d-flex gap-2">
+    <a href="{{ route('admin.laporan.export.excel', $status) }}"
+       class="btn btn-sm btn-dark">
+        Export Excel
+    </a>
+
+    <a href="{{ route('admin.laporan.export.pdf', $status) }}"
+       class="btn btn-sm btn-outline-danger">
+        Export PDF
+    </a>
+</div>
+
 
 </ul>
+
 
 {{-- ===================== --}}
 {{-- TABEL LAPORAN --}}
