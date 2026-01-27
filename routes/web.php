@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ReportControllerAdmin;
 use App\Http\Controllers\ReportCommentController;
 use App\Http\Controllers\Admin\DashboardControllerAdmin;
 use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
+use App\Http\Controllers\LandingPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,8 @@ use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [AuthentikasiController::class, 'showLogin'])->name('login');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
+
 Route::post('/login', [AuthentikasiController::class, 'login']);
 
 // Routes Register
