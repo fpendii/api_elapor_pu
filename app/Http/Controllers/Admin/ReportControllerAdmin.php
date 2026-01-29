@@ -37,9 +37,9 @@ class ReportControllerAdmin extends Controller
     }
 
 
-    public function show(Report $report)
+    public function show($id)
     {
-        // dd($report);
+        $report = Report::with('user')->findOrFail($id);
         return view('admin.laporan.show', compact('report'));
     }
 

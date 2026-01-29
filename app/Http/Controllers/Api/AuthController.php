@@ -82,12 +82,24 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // --- LOGIKA TAMBAHAN: AMBIL NOMOR WA ADMIN ---
+        // Mencari user pertama yang rolenya 'admin' untuk diambil nomor WA-nya
+        $admin = User::where('role', 'admin')->first();
+        $adminPhone = $admin ? $admin->nomor_wa : '628123456789'; // fallback jika admin tidak ditemukan
+
+        // Membersihkan nomor WA (menghilangkan tanda +, spasi, atau angka 0 di depan)
+        // Agar formatnya pasti 62...
+        $formattedAdminPhone = preg_replace('/[^0-9]/', '', $adminPhone);
+        if (str_starts_with($formattedAdminPhone, '0')) {
+            $formattedAdminPhone = '62' . substr($formattedAdminPhone, 1);
+        }
+
         return response()->json([
             'status'  => true,
             'message' => 'Login Berhasil!',
-            'data'    => $user,
-            // Jika ingin pakai token (Sanctum), aktifkan baris bawah:
-            // 'token' => $user->createToken('auth_token')->plainTextToken,
+            'data'    => array_merge($user->toArray(), [
+                'admin_contact' => $formattedAdminPhone // Sisipkan nomor admin ke data user
+            ]),
         ]);
     }
 }

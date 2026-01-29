@@ -22,7 +22,8 @@ use App\Http\Controllers\LandingPageController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [LandingPageController::class, 'index'])->name('home');
+// Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/', [AuthentikasiController::class, 'showLogin'])->name('login');
 
 Route::post('/login', [AuthentikasiController::class, 'login']);
 
@@ -106,6 +107,6 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Komentar Laporan
     |--------------------------------------------------------------------------
     */
-    Route::post('laporan/{report}/komentar', [ReportCommentController::class, 'store'])
+    Route::post('laporan/{id}/komentar', [ReportCommentController::class, 'store'])
         ->name('laporan.komentar.store');
 });
