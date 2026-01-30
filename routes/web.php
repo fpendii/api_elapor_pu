@@ -7,6 +7,7 @@ use App\Http\Controllers\ReportCommentController;
 use App\Http\Controllers\Admin\DashboardControllerAdmin;
 use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 use App\Http\Controllers\Admin\ProfileControllerAdmin;
+use App\Http\Controllers\LandingPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,9 @@ use App\Http\Controllers\Admin\ProfileControllerAdmin;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [AuthentikasiController::class, 'showLogin'])->name('login');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/login', [AuthentikasiController::class, 'showLogin'])->name('login');
+
 Route::post('/login', [AuthentikasiController::class, 'login']);
 
 // Routes Register
@@ -105,7 +108,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Komentar Laporan
     |--------------------------------------------------------------------------
     */
-    Route::post('laporan/{report}/komentar', [ReportCommentController::class, 'store'])
+    Route::post('laporan/{id}/komentar', [ReportCommentController::class, 'store'])
         ->name('laporan.komentar.store');
 
     /*
