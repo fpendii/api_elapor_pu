@@ -119,4 +119,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/admin/profile', [ProfileControllerAdmin::class, 'index'])->name('profile.index');
     Route::get('/admin/profile/edit', [ProfileControllerAdmin::class, 'edit'])->name('profile.edit');
     Route::put('/admin/profile', [ProfileControllerAdmin::class, 'update'])->name('profile.update');
+
+
+    /*|--------------------------------------------------------------------------
+    | Ujicoba Cloud Vision API
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/cloud-vision/test', [App\Http\Controllers\Ujicoba\CloudVisionController::class, 'test'])->name('cloud-vision.test');
 });

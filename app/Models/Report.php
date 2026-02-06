@@ -16,18 +16,23 @@ class Report extends Model
         'lokasi',
         'deskripsi',
         'foto_kerusakan',
+
+        // AI RESULT
+        'ai_analysis',
+        'ai_damage_type',
+        'ai_severity',
+
         'status',
     ];
 
-    // Relasi: Laporan ini milik satu user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi: Satu laporan punya banyak komentar (riwayat progress)
     public function comments()
     {
-        return $this->hasMany(ReportComment::class)->orderBy('created_at', 'asc');
+        return $this->hasMany(ReportComment::class)
+            ->orderBy('created_at', 'asc');
     }
 }
