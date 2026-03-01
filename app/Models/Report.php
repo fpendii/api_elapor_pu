@@ -16,6 +16,7 @@ class Report extends Model
         'lokasi',
         'deskripsi',
         'foto_kerusakan',
+        'jenis_usulan',
 
         // AI RESULT
         'ai_analysis',

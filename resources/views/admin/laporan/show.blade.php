@@ -146,11 +146,24 @@
                         @endif
                     </div>
 
+
                     {{-- INFORMASI UTAMA --}}
                     <div class="row mb-4 mt-4">
                         <div class="col-md-12 mb-3">
                             <label class="text-muted small text-uppercase fw-bold">Judul Laporan</label>
                             <p class="fs-4 fw-bold text-dark mb-0">{{ $report->judul }}</p>
+                        </div>
+
+                        {{-- TAMPILAN JENIS USULAN (LONG TEXT FRIENDLY) --}}
+                        <div class="col-md-12 mb-4">
+                            <div class="p-3 border rounded bg-light shadow-sm">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">
+                                    <i class="fas fa-paper-plane me-1 text-primary"></i> Jenis Usulan / Perihal
+                                </label>
+                                <p class="mb-0 text-dark fw-semibold" style="line-height: 1.6;">
+                                    {{ $report->jenis_usulan ?? 'Tidak ada keterangan jenis usulan' }}
+                                </p>
+                            </div>
                         </div>
 
                         <div class="col-md-6">

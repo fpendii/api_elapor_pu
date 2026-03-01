@@ -38,72 +38,74 @@ class ReportController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // 1. VALIDASI (foto_kerusakan sekarang adalah array .*)
-        $validator = Validator::make($request->all(), [
-            'user_id'          => 'required',
-            'kategori'         => 'required',
-            'judul'            => 'required',
-            'lokasi'           => 'required',
-            'deskripsi'        => 'required',
-            'foto_kerusakan'   => 'required|array',
-            'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+{
+    // 1. VALIDASI
+    $validator = Validator::make($request->all(), [
+        'user_id'          => 'required',
+        'jenis_usulan'     => 'required|string', // <--- Tambahkan validasi ini
+        'kategori'         => 'required',
+        'judul'            => 'required',
+        'lokasi'           => 'required',
+        'deskripsi'        => 'required',
+        'foto_kerusakan'   => 'required|array',
+        'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    DB::beginTransaction();
+    try {
+        // 2. SIMPAN DATA REPORT
+        $report = Report::create([
+            'user_id'      => $request->user_id,
+            'jenis_usulan' => $request->jenis_usulan, // <--- Simpan datanya di sini
+            'kategori'     => $request->kategori,
+            'judul'        => $request->judul,
+            'lokasi'       => $request->lokasi,
+            'deskripsi'    => $request->deskripsi,
+            'status'       => 'Menunggu',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors()
-            ], 422);
+        // 3. SIMPAN BANYAK FOTO (Kode tetap sama)
+        $pathsForAI = [];
+        if ($request->hasFile('foto_kerusakan')) {
+            foreach ($request->file('foto_kerusakan') as $file) {
+                $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('reports', $namaFile, 'public');
+
+                ReportImage::create([
+                    'report_id' => $report->id,
+                    'path'      => $path
+                ]);
+
+                $pathsForAI[] = $path;
+            }
         }
 
-        DB::beginTransaction();
-        try {
-            // 2. SIMPAN DATA REPORT (Tanpa kolom foto_kerusakan jika sudah dihapus)
-            $report = Report::create([
-                'user_id'   => $request->user_id,
-                'kategori'  => $request->kategori,
-                'judul'     => $request->judul,
-                'lokasi'    => $request->lokasi,
-                'deskripsi' => $request->deskripsi,
-                'status'    => 'Menunggu',
-            ]);
+        DB::commit();
 
-            // 3. SIMPAN BANYAK FOTO KE TABEL report_images
-            $pathsForAI = [];
-            if ($request->hasFile('foto_kerusakan')) {
-                foreach ($request->file('foto_kerusakan') as $file) {
-                    $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('reports', $namaFile, 'public');
-
-                    ReportImage::create([
-                        'report_id' => $report->id,
-                        'path'      => $path
-                    ]);
-
-                    $pathsForAI[] = $path; // Simpan path untuk dianalisis AI nanti
-                }
-            }
-
-            DB::commit();
-
-            // 4. ANALISIS AI (GEMINI) - Menggunakan foto pertama sebagai sampel analisis
-            if (!empty($pathsForAI)) {
-                $this->analyzeWithAI($report, $pathsForAI[0]);
-            }
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Laporan berhasil dikirim dengan ' . count($pathsForAI) . ' foto',
-                'data'    => $report->load('images')
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('STORE REPORT ERROR: ' . $e->getMessage());
-            return response()->json(['status' => false, 'message' => 'ngehe'], 500);
+        // 4. ANALISIS AI (Tetap menggunakan foto pertama)
+        if (!empty($pathsForAI)) {
+            $this->analyzeWithAI($report, $pathsForAI[0]);
         }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Laporan berhasil dikirim dengan ' . count($pathsForAI) . ' foto',
+            'data'    => $report->load('images')
+        ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('STORE REPORT ERROR: ' . $e->getMessage());
+        return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat menyimpan laporan'], 500);
     }
+}
 
     /**
      * Fungsi Helper untuk Analisis AI agar code store() lebih rapi
