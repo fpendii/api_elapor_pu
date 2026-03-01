@@ -41,10 +41,10 @@ Route::post('/logout', [AuthentikasiController::class, 'logout'])
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-
+    Route::post('/admin/laporan/{id}/status/{status}', [ReportControllerAdmin::class, 'updateStatus'])->name('laporan.update-status');
     /*
 
-*/
+    */
     Route::get('/dashboard', [DashboardControllerAdmin::class, 'index'])->name('dashboard');
     /*
     |--------------------------------------------------------------------------

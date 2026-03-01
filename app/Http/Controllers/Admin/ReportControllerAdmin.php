@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Report;
+use App\Models\ReportComment;
 
 class ReportControllerAdmin extends Controller
 {
@@ -75,4 +76,19 @@ class ReportControllerAdmin extends Controller
             ->route('admin.laporan.show', $report->id)
             ->with('success', 'Laporan selesai diproses');
     }
+
+    public function updateStatus($id, $status) {
+    $report = Report::findOrFail($id);
+    $report->status = $status;
+    $report->save();
+
+    // Opsional: Buat komentar otomatis setiap status berubah
+    ReportComment::create([
+        'report_id' => $id,
+        'user_id' => auth()->id(),
+        'pesan' => "Sistem: Status laporan diubah menjadi " . $status
+    ]);
+
+    return back()->with('success', 'Status berhasil diperbarui!');
+}
 }

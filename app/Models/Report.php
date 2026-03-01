@@ -35,4 +35,9 @@ class Report extends Model
         return $this->hasMany(ReportComment::class)
             ->orderBy('created_at', 'asc');
     }
+
+    public function images()
+    {
+        return $this->hasMany(ReportImage::class, 'report_id');
+    }
 }

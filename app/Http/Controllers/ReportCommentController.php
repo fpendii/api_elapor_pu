@@ -20,7 +20,7 @@ class ReportCommentController extends Controller
         }
 
         $data['user_id'] = auth()->id();
-        $data['report_id'] = $report->id;
+        $data['report_id'] = $request->report_id;
 
         ReportComment::create($data);
 
