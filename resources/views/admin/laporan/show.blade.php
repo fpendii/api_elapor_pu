@@ -28,19 +28,19 @@
         <div class="card-body p-4">
             <div class="stepper-horizontal-container">
                 <div class="stepper-wrapper">
-                   @php
-    // KUNCI (KIRI) harus SAMA PERSIS dengan ENUM di database
-    $statuses = [
-        'Proposal'    => 'Proposal',
-        'Verifikasi'  => 'Cek Lokasi',
-        'Penetapan'   => 'Penetapan',
-        'Pelaksanaan' => 'Pelaksanaan',
-        'Pemeriksaan' => 'Pemeriksaan',
-        'Selesai'     => 'Selesai',
-    ];
-    $currentStatus = $report->status;
-    $isCompleted = true;
-@endphp
+                    @php
+                        // KUNCI (KIRI) harus SAMA PERSIS dengan ENUM di database
+                        $statuses = [
+                            'Proposal' => 'Proposal',
+                            'Verifikasi' => 'Cek Lokasi',
+                            'Penetapan' => 'Penetapan',
+                            'Pelaksanaan' => 'Pelaksanaan',
+                            'Pemeriksaan' => 'Pemeriksaan',
+                            'Selesai' => 'Selesai',
+                        ];
+                        $currentStatus = $report->status;
+                        $isCompleted = true;
+                    @endphp
 
                     @foreach ($statuses as $key => $label)
                         <div

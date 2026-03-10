@@ -11,19 +11,28 @@ class ReportControllerAdmin extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->query('status', 'Menunggu');
+        // 1. Set default status ke 'Semua' atau 'Proposal'
+        $status = $request->query('status', 'Semua');
 
+        // 2. Ambil semua laporan
+        $baseQuery = Report::with('user');
+
+        // 3. Hitung jumlah per status (Sesuai dengan Alur Baru)
+        // Kita ambil semua status yang ada di database sekaligus agar lebih efisien
+        $countsFromDb = Report::selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        // 4. Pastikan semua status memiliki index (biar tidak error di Blade)
+        $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
+        $count = [];
+        foreach ($listStatus as $s) {
+            $count[$s] = $countsFromDb[$s] ?? 0;
+        }
+
+        // 5. Filter tabel berdasarkan request
         $query = Report::with('user')->latest();
-
-        // Hitung jumlah per status (UNTUK CARD)
-        $count = [
-            'Menunggu' => (clone $query)->where('status', 'Menunggu')->count(),
-            'Proses'   => (clone $query)->where('status', 'Proses')->count(),
-            'Selesai'  => (clone $query)->where('status', 'Selesai')->count(),
-            'Ditolak'  => (clone $query)->where('status', 'Ditolak')->count(),
-        ];
-
-        // Filter tabel
         if ($status !== 'Semua') {
             $query->where('status', $status);
         }
@@ -77,18 +86,19 @@ class ReportControllerAdmin extends Controller
             ->with('success', 'Laporan selesai diproses');
     }
 
-    public function updateStatus($id, $status) {
-    $report = Report::findOrFail($id);
-    $report->status = $status;
-    $report->save();
+    public function updateStatus($id, $status)
+    {
+        $report = Report::findOrFail($id);
+        $report->status = $status;
+        $report->save();
 
-    // Opsional: Buat komentar otomatis setiap status berubah
-    ReportComment::create([
-        'report_id' => $id,
-        'user_id' => auth()->id(),
-        'pesan' => "Sistem: Status laporan diubah menjadi " . $status
-    ]);
+        // Opsional: Buat komentar otomatis setiap status berubah
+        ReportComment::create([
+            'report_id' => $id,
+            'user_id' => auth()->id(),
+            'pesan' => "Sistem: Status laporan diubah menjadi " . $status
+        ]);
 
-    return back()->with('success', 'Status berhasil diperbarui!');
-}
+        return back()->with('success', 'Status berhasil diperbarui!');
+    }
 }
