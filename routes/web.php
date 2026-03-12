@@ -129,6 +129,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
      */
     Route::resource('jenis-rab', JenisRabController::class)->except(['show']);
 
+    Route::put('/jenis-rab/{jenis_rab}/update-rab', [JenisRabController::class, 'updateRab'])->name('jenis-rab.update-rab');
+
 
     /*|--------------------------------------------------------------------------
     | Ujicoba Cloud Vision API

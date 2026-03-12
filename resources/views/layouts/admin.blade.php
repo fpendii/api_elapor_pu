@@ -167,6 +167,10 @@
                 <i class="bi bi-house-door"></i>
                 <span>Dashboard</span>
             </a>
+            <a class="nav-link {{ request()->is('admin/jenis-rab*') ? 'active' : '' }}" href="{{ url('admin/jenis-rab') }}">
+                <i class="bi bi-list-task"></i>
+                <span>Jenis RAB</span>
+            </a>
 
             <a class="nav-link {{ request()->is('admin/laporan*') ? 'active' : '' }}" href="{{ url('admin/laporan') }}">
                 <i class="bi bi-card-list"></i>

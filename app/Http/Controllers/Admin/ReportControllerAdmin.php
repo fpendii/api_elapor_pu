@@ -11,46 +11,33 @@ class ReportControllerAdmin extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Set default status ke 'Semua' atau 'Proposal'
         $status = $request->query('status', 'Semua');
+        $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
 
-        // 2. Ambil semua laporan
-        $baseQuery = Report::with('user');
-
-        // 3. Hitung jumlah per status (Sesuai dengan Alur Baru)
-        // Kita ambil semua status yang ada di database sekaligus agar lebih efisien
+        // Ambil counts sekaligus dan isi default 0 untuk status yang kosong
         $countsFromDb = Report::selectRaw('status, count(*) as total')
             ->groupBy('status')
-            ->pluck('total', 'status')
-            ->toArray();
+            ->pluck('total', 'status');
 
-        // 4. Pastikan semua status memiliki index (biar tidak error di Blade)
-        $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
-        $count = [];
-        foreach ($listStatus as $s) {
-            $count[$s] = $countsFromDb[$s] ?? 0;
-        }
+        $count = collect($listStatus)->mapWithKeys(fn($s) => [
+            $s => $countsFromDb->get($s, 0)
+        ])->toArray();
 
-        // 5. Filter tabel berdasarkan request
-        $query = Report::with('user')->latest();
-        if ($status !== 'Semua') {
-            $query->where('status', $status);
-        }
+        // Query data laporan
+        $reports = Report::with('user')
+            ->when($status !== 'Semua', fn($q) => $q->where('status', $status))
+            ->latest()
+            ->get();
 
-        $reports = $query->get();
-
-        return view('admin.laporan.index', compact(
-            'reports',
-            'status',
-            'count'
-        ));
+        return view('admin.laporan.index', compact('reports', 'status', 'count'));
     }
 
 
     public function show($id)
     {
         $report = Report::with('user')->findOrFail($id);
-        return view('admin.laporan.show', compact('report'));
+        $allJenisRab = \App\Models\JenisRab::all();
+        return view('admin.laporan.show', compact('report', 'allJenisRab'));
     }
 
     public function terima(Report $report)
@@ -89,32 +76,53 @@ class ReportControllerAdmin extends Controller
     public function updateStatus(Request $request, $id, $value)
     {
         $report = Report::findOrFail($id);
+        $userName = auth()->user()->name; // Opsional: untuk memperjelas siapa yang mengubah
 
-        // Jika request berisi tipe prioritas
+        // 1. JIKA UPDATE PRIORITAS
         if ($request->type === 'prioritas') {
-
-            $oldPrioritas = $report->prioritas; // simpan nilai lama
-
+            $oldPrioritas = $report->prioritas ?? 'Tidak Ada';
             $report->prioritas = $value;
             $report->save();
 
             ReportComment::create([
                 'report_id' => $id,
                 'user_id' => auth()->id(),
-                'pesan' => "Sistem: Prioritas laporan diubah dari {$oldPrioritas} menjadi {$value}"
+                'pesan' => "Sistem: Prioritas laporan diubah dari [{$oldPrioritas}] menjadi [{$value}] oleh {$userName}"
             ]);
 
             return back()->with('success', 'Prioritas berhasil diperbarui!');
         }
 
-        // Default = update status
+        // 2. JIKA UPDATE KATEGORI (JENIS RAB)
+        if ($request->type === 'kategori') {
+            // Ambil data RAB lama dan baru untuk catatan komentar
+            $oldRab = $report->jenisRab->nama_rab ?? 'Belum Ditentukan';
+
+            $report->jenis_rab_id = $value; // $value di sini adalah ID Jenis RAB
+            $report->save();
+
+            // Load relasi terbaru untuk mendapatkan nama RAB yang baru
+            $report->load('jenisRab');
+            $newRab = $report->jenisRab->nama_rab ?? 'Tidak Diketahui';
+
+            ReportComment::create([
+                'report_id' => $id,
+                'user_id' => auth()->id(),
+                'pesan' => "Sistem: Kategori RAB diubah dari [{$oldRab}] menjadi [{$newRab}] oleh {$userName}"
+            ]);
+
+            return back()->with('success', 'Kategori RAB berhasil diperbarui!');
+        }
+
+        // 3. DEFAULT: UPDATE STATUS LAPORAN
+        $oldStatus = $report->status;
         $report->status = $value;
         $report->save();
 
         ReportComment::create([
             'report_id' => $id,
             'user_id' => auth()->id(),
-            'pesan' => "Sistem: Status laporan diubah menjadi " . $value
+            'pesan' => "Sistem: Status laporan diubah dari [{$oldStatus}] menjadi [{$value}] oleh {$userName}"
         ]);
 
         return back()->with('success', 'Status berhasil diperbarui!');

@@ -100,126 +100,203 @@
                     {{-- INFO KATEGORI & PRIORITAS --}}
                     <div class="row g-3 mb-4">
 
+                        {{-- KATEGORI UTAMA (DINAMIS DARI JENIS RAB) --}}
                         <div class="col-md-6">
-                            <div class="p-3 border rounded bg-light h-100">
-                                <label class="text-muted small text-uppercase fw-bold mb-2 d-block">
-                                    <i class="fas fa-tags me-1 text-primary"></i> Kategori Utama
-                                </label>
+                            <div class="p-3 border rounded bg-light h-100 shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="text-muted small text-uppercase fw-bold mb-0">
+                                        <i class="fas fa-tags me-1 text-primary"></i> Kategori Utama
+                                    </label>
 
-                                @php
-                                    $katEksplode = explode(' - ', $report->kategori);
-                                    $parentKat = $katEksplode[0];
-                                    $subKat = $katEksplode[1] ?? null;
-                                @endphp
+                                    {{-- Tombol ubah muncul jika status Verifikasi atau Penetapan --}}
+                                    @if (in_array($report->status, ['Verifikasi', 'Penetapan']))
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle border-0"
+                                                data-bs-toggle="dropdown">
+                                                Ubah
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0"
+                                                style="max-height: 250px; overflow-y: auto;">
+                                                <li class="dropdown-header small text-uppercase">Pilih Jenis RAB</li>
+                                                @foreach ($allJenisRab as $rab)
+                                                    <li>
+                                                        <button
+                                                            class="dropdown-item d-flex justify-content-between align-items-center"
+                                                            onclick="confirmStatus('Ubah kategori ke {{ $rab->nama_rab }}', 'form-kat-{{ $rab->id }}')">
+                                                            <span>{{ $rab->nama_rab }}</span>
+                                                            <small class="text-muted ms-2">({{ $rab->dana }})</small>
+                                                        </button>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
 
-                                <span class="badge bg-primary fs-6 px-3 py-2 shadow-sm">
-                                    {{ $parentKat }}
-                                </span>
+                                        {{-- Form Hidden untuk Kategori --}}
+                                        @foreach ($allJenisRab as $rab)
+                                            <form id="form-kat-{{ $rab->id }}" method="POST"
+                                                action="{{ route('admin.laporan.update-status', [$report->id, $rab->id]) }}"
+                                                class="d-none">
+                                                @csrf
+                                                <input type="hidden" name="type" value="kategori">
+                                            </form>
+                                        @endforeach
+                                    @endif
+                                </div>
+
+                                <div class="d-flex align-items-center mt-2">
+                                    <span class="badge bg-primary fs-6 px-3 py-2 shadow-sm">
+                                        <i class="fas fa-file-invoice-dollar me-1"></i>
+                                        {{ $report->jenisRab->nama_rab ?? 'Belum Ditentukan' }}
+                                    </span>
+                                </div>
+                                @if (isset($report->jenisRab->dana))
+                                    <div class="small text-muted mt-2">
+                                        <i class="fas fa-coins me-1"></i> Sumber: {{ $report->jenisRab->dana }}
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
+                        {{-- PRIORITAS --}}
                         <div class="col-md-6">
-                            <div class="p-3 border rounded bg-light h-100">
-
+                            <div class="p-3 border rounded bg-light h-100 shadow-sm">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <label class="text-muted small text-uppercase fw-bold mb-0">
                                         <i class="fas fa-exclamation-circle me-1 text-danger"></i> Prioritas
                                     </label>
 
-                                    {{-- Tombol ubah hanya saat status Verifikasi --}}
-                                    @if ($report->status === 'Verifikasi')
+                                    @if ($report->status === 'Verifikasi' || $report->status === 'Penetapan')
                                         <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle border-0"
                                                 data-bs-toggle="dropdown">
                                                 Ubah
                                             </button>
-
-                                            <ul class="dropdown-menu dropdown-menu-end">
-
-                                                <li>
-                                                    <button class="dropdown-item"
-                                                        onclick="confirmStatus('Prioritas Darurat','form-prioritas-darurat')">
-                                                        Darurat
-                                                    </button>
-                                                </li>
-
-                                                <li>
-                                                    <button class="dropdown-item"
-                                                        onclick="confirmStatus('Prioritas Tinggi','form-prioritas-tinggi')">
-                                                        Tinggi
-                                                    </button>
-                                                </li>
-
-                                                <li>
-                                                    <button class="dropdown-item"
-                                                        onclick="confirmStatus('Prioritas Sedang','form-prioritas-sedang')">
-                                                        Sedang
-                                                    </button>
-                                                </li>
-
-                                                <li>
-                                                    <button class="dropdown-item"
-                                                        onclick="confirmStatus('Prioritas Rendah','form-prioritas-rendah')">
-                                                        Rendah
-                                                    </button>
-                                                </li>
-
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                @foreach (['Darurat', 'Tinggi', 'Sedang', 'Rendah'] as $prio)
+                                                    <li>
+                                                        <button class="dropdown-item"
+                                                            onclick="confirmStatus('Set Prioritas ke {{ $prio }}', 'form-prio-{{ strtolower($prio) }}')">
+                                                            {{ $prio }}
+                                                        </button>
+                                                    </li>
+                                                @endforeach
                                             </ul>
                                         </div>
                                     @endif
                                 </div>
 
                                 @php
-                                    $priorityColor = 'bg-secondary';
-
-                                    if (strtolower($report->prioritas) == 'darurat') {
-                                        $priorityColor = 'bg-dark text-white';
-                                    } elseif (strtolower($report->prioritas) == 'tinggi') {
-                                        $priorityColor = 'bg-danger';
-                                    } elseif (strtolower($report->prioritas) == 'sedang') {
-                                        $priorityColor = 'bg-warning text-dark';
-                                    } elseif (strtolower($report->prioritas) == 'rendah') {
-                                        $priorityColor = 'bg-info text-white';
-                                    }
+                                    $priorityColor = match (strtolower($report->prioritas)) {
+                                        'darurat' => 'bg-dark text-white',
+                                        'tinggi' => 'bg-danger',
+                                        'sedang' => 'bg-warning text-dark',
+                                        'rendah' => 'bg-info text-white',
+                                        default => 'bg-secondary',
+                                    };
                                 @endphp
 
                                 <span class="badge {{ $priorityColor }} fs-6 px-3 py-2 shadow-sm">
                                     {{ $report->prioritas ?? 'Tidak Ada' }}
                                 </span>
 
-                                {{-- FORM PRIORITAS --}}
-                                <form id="form-prioritas-darurat" method="POST"
-                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Darurat']) }}"
-                                    class="d-none">
-                                    @csrf
-                                    <input type="hidden" name="type" value="prioritas">
-                                </form>
-
-                                <form id="form-prioritas-tinggi" method="POST"
-                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Tinggi']) }}"
-                                    class="d-none">
-                                    @csrf
-                                    <input type="hidden" name="type" value="prioritas">
-                                </form>
-
-                                <form id="form-prioritas-sedang" method="POST"
-                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Sedang']) }}"
-                                    class="d-none">
-                                    @csrf
-                                    <input type="hidden" name="type" value="prioritas">
-                                </form>
-
-                                <form id="form-prioritas-rendah" method="POST"
-                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Rendah']) }}"
-                                    class="d-none">
-                                    <input type="hidden" name="type" value="prioritas">
-                                    @csrf
-                                </form>
-
+                                {{-- FORM PRIORITAS HIDDEN --}}
+                                @foreach (['Darurat', 'Tinggi', 'Sedang', 'Rendah'] as $prio)
+                                    <form id="form-prio-{{ strtolower($prio) }}" method="POST"
+                                        action="{{ route('admin.laporan.update-status', [$report->id, $prio]) }}"
+                                        class="d-none">
+                                        @csrf
+                                        <input type="hidden" name="type" value="prioritas">
+                                    </form>
+                                @endforeach
                             </div>
                         </div>
-
                     </div>
+
+                    {{-- INPUT NOMINAL & DOKUMEN (Hanya muncul saat status Penetapan) --}}
+                    @if ($report->status === 'Penetapan')
+                        <div class="card border-0 shadow-sm mb-4 border-start border-primary border-4">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-4">
+                                    <div class="icon-box bg-primary text-white me-3 rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 45px; height: 45px;">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-0">Penyusunan Anggaran & Dokumen</h6>
+                                        <small class="text-muted">Silakan lengkapi data keuangan untuk kategori
+                                            <strong>{{ $report->jenisRab->nama_rab ?? '-' }}</strong></small>
+                                    </div>
+                                </div>
+
+                                <form action="{{ route('admin.jenis-rab.update-rab', $report->id) }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="row g-4">
+                                        {{-- Input Nominal --}}
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-muted text-uppercase">Nominal RAB
+                                                Terpilih (Rp)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light fw-bold">Rp</span>
+                                                <input type="number" name="nominal_rab"
+                                                    class="form-control form-control-lg" placeholder="0"
+                                                    value="{{ $report->nominal_rab }}">
+                                            </div>
+                                            <div class="form-text mt-2"><i class="fas fa-info-circle me-1"></i> Masukkan
+                                                total nilai proyek tanpa titik/koma.</div>
+                                        </div>
+
+                                        {{-- Upload Dokumen --}}
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold text-muted text-uppercase">Dokumen
+                                                Lampiran (PDF/Excel)</label>
+                                            <input type="file" name="dokumen_rab" class="form-control form-control-lg"
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx">
+                                            <div class="form-text mt-2">Unggah file pendukung rincian biaya.</div>
+                                        </div>
+
+                                        {{-- Preview Dokumen Jika Ada --}}
+                                        @if ($report->dokumen_rab)
+                                            <div class="col-12">
+                                                <div
+                                                    class="p-3 bg-light rounded d-flex align-items-center justify-content-between border">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
+                                                        <div>
+                                                            <div class="fw-bold mb-0">Dokumen Saat Ini</div>
+                                                            <small class="text-muted">Klik tombol di samping untuk melihat
+                                                                file.</small>
+                                                        </div>
+                                                    </div>
+                                                    <a href="{{ asset('storage/' . $report->dokumen_rab) }}"
+                                                        target="_blank" class="btn btn-sm btn-outline-primary px-3">
+                                                        <i class="fas fa-eye me-1"></i> Lihat Dokumen
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <div class="col-12 text-end mt-4">
+                                            <hr>
+                                            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
+                                                <i class="fas fa-check-circle me-1"></i> Simpan & Perbarui Anggaran
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        {{-- Info Jika Belum Tahap Penetapan --}}
+                        <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                            <div>
+                                <strong>Tahap Verifikasi:</strong> Form penginputan anggaran akan terbuka otomatis setelah
+                                Anda mengubah status laporan ini menjadi <strong>"Penetapan"</strong>.
+                            </div>
+                        </div>
+                    @endif
 
 
                     {{-- FOTO DOKUMENTASI --}}
@@ -307,7 +384,12 @@
 
                         </div>
                     </div>
-
+                    @php
+                        // Ambil sub-kategori dari kolom kategori jika formatnya masih 'Parent - Sub'
+                        // Jika kolom kategori kosong, defaultnya null
+                        $katEksplode = explode(' - ', $report->kategori ?? '');
+                        $subKat = $katEksplode[1] ?? null;
+                    @endphp
 
                     {{-- DETAIL BAGIAN --}}
                     @if ($subKat)
@@ -755,8 +837,38 @@
                         </div>
                     </div>
                 </div>
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="mb-0 fw-bold small text-uppercase">Daftar Referensi Jenis RAB</h6>
+                </div>
+                <div class="card-body p-0 py-3"> {{-- p-0 agar list-group menempel ke pinggir card --}}
+                    <div class="list-group list-group-flush">
+                        @forelse($allJenisRab as $rab)
+                            <div class="list-group-item py-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="icon-box bg-light text-primary me-3 flex-shrink-0"
+                                        style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="fw-bold text-dark text-truncate" title="{{ $rab->nama_rab }}">
+                                            {{ $rab->nama_rab }}
+                                        </div>
+                                        <div class="small text-success">
+                                            <i class="fas fa-coins me-1"></i> {{ $rab->dana }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-3 text-center">
+                                <small class="text-muted">Tidak ada data RAB.</small>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 
     <style>
