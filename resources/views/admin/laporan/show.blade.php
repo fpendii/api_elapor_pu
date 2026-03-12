@@ -96,6 +96,277 @@
                 </div>
 
                 <div class="card-body">
+
+                    {{-- INFO KATEGORI & PRIORITAS --}}
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+                                <label class="text-muted small text-uppercase fw-bold mb-2 d-block">
+                                    <i class="fas fa-tags me-1 text-primary"></i> Kategori Utama
+                                </label>
+
+                                @php
+                                    $katEksplode = explode(' - ', $report->kategori);
+                                    $parentKat = $katEksplode[0];
+                                    $subKat = $katEksplode[1] ?? null;
+                                @endphp
+
+                                <span class="badge bg-primary fs-6 px-3 py-2 shadow-sm">
+                                    {{ $parentKat }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded bg-light h-100">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="text-muted small text-uppercase fw-bold mb-0">
+                                        <i class="fas fa-exclamation-circle me-1 text-danger"></i> Prioritas
+                                    </label>
+
+                                    {{-- Tombol ubah hanya saat status Verifikasi --}}
+                                    @if ($report->status === 'Verifikasi')
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown">
+                                                Ubah
+                                            </button>
+
+                                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                                <li>
+                                                    <button class="dropdown-item"
+                                                        onclick="confirmStatus('Prioritas Darurat','form-prioritas-darurat')">
+                                                        Darurat
+                                                    </button>
+                                                </li>
+
+                                                <li>
+                                                    <button class="dropdown-item"
+                                                        onclick="confirmStatus('Prioritas Tinggi','form-prioritas-tinggi')">
+                                                        Tinggi
+                                                    </button>
+                                                </li>
+
+                                                <li>
+                                                    <button class="dropdown-item"
+                                                        onclick="confirmStatus('Prioritas Sedang','form-prioritas-sedang')">
+                                                        Sedang
+                                                    </button>
+                                                </li>
+
+                                                <li>
+                                                    <button class="dropdown-item"
+                                                        onclick="confirmStatus('Prioritas Rendah','form-prioritas-rendah')">
+                                                        Rendah
+                                                    </button>
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                @php
+                                    $priorityColor = 'bg-secondary';
+
+                                    if (strtolower($report->prioritas) == 'darurat') {
+                                        $priorityColor = 'bg-dark text-white';
+                                    } elseif (strtolower($report->prioritas) == 'tinggi') {
+                                        $priorityColor = 'bg-danger';
+                                    } elseif (strtolower($report->prioritas) == 'sedang') {
+                                        $priorityColor = 'bg-warning text-dark';
+                                    } elseif (strtolower($report->prioritas) == 'rendah') {
+                                        $priorityColor = 'bg-info text-white';
+                                    }
+                                @endphp
+
+                                <span class="badge {{ $priorityColor }} fs-6 px-3 py-2 shadow-sm">
+                                    {{ $report->prioritas ?? 'Tidak Ada' }}
+                                </span>
+
+                                {{-- FORM PRIORITAS --}}
+                                <form id="form-prioritas-darurat" method="POST"
+                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Darurat']) }}"
+                                    class="d-none">
+                                    @csrf
+                                    <input type="hidden" name="type" value="prioritas">
+                                </form>
+
+                                <form id="form-prioritas-tinggi" method="POST"
+                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Tinggi']) }}"
+                                    class="d-none">
+                                    @csrf
+                                    <input type="hidden" name="type" value="prioritas">
+                                </form>
+
+                                <form id="form-prioritas-sedang" method="POST"
+                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Sedang']) }}"
+                                    class="d-none">
+                                    @csrf
+                                    <input type="hidden" name="type" value="prioritas">
+                                </form>
+
+                                <form id="form-prioritas-rendah" method="POST"
+                                    action="{{ route('admin.laporan.update-status', [$report->id, 'Rendah']) }}"
+                                    class="d-none">
+                                    <input type="hidden" name="type" value="prioritas">
+                                    @csrf
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    {{-- FOTO DOKUMENTASI --}}
+                    <div class="mb-4">
+                        <label class="text-muted small text-uppercase fw-bold mb-2 d-block">
+                            Dokumentasi Kerusakan
+                        </label>
+
+                        @if ($report->images->count() > 0)
+
+                            <div id="carouselReport" class="carousel slide rounded shadow-sm bg-dark"
+                                data-bs-ride="carousel">
+
+                                <div class="carousel-inner">
+
+                                    @foreach ($report->images as $key => $image)
+                                        <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                            <a href="{{ asset('storage/' . $image->path) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $image->path) }}"
+                                                    class="d-block w-100 rounded"
+                                                    style="max-height:450px; object-fit:contain;">
+                                            </a>
+                                        </div>
+                                    @endforeach
+
+                                </div>
+
+                                @if ($report->images->count() > 1)
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselReport"
+                                        data-bs-slide="prev">
+
+                                        <span class="carousel-control-prev-icon"></span>
+
+                                    </button>
+
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselReport"
+                                        data-bs-slide="next">
+
+                                        <span class="carousel-control-next-icon"></span>
+
+                                    </button>
+                                @endif
+
+                            </div>
+
+                            <div class="text-center mt-2">
+                                <small class="text-muted">
+                                    Klik gambar untuk memperbesar • Total {{ $report->images->count() }} foto
+                                </small>
+                            </div>
+                        @else
+                            <div class="alert alert-light text-center border py-4">
+                                <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                                <p class="mb-0 text-muted">Tidak ada foto dokumentasi</p>
+                            </div>
+
+                        @endif
+                    </div>
+
+
+                    {{-- JUDUL --}}
+                    <div class="mb-4">
+                        <label class="text-muted small text-uppercase fw-bold">
+                            Judul Laporan
+                        </label>
+
+                        <h4 class="fw-bold text-dark mb-0">
+                            {{ $report->judul }}
+                        </h4>
+                    </div>
+
+
+                    {{-- JENIS USULAN --}}
+                    <div class="mb-4">
+                        <div class="p-3 border rounded bg-light shadow-sm">
+
+                            <label class="text-muted small text-uppercase fw-bold d-block mb-2">
+                                <i class="fas fa-paper-plane me-1 text-primary"></i>
+                                Jenis Usulan / Perihal
+                            </label>
+
+                            <p class="mb-0 fw-semibold text-dark">
+                                {{ $report->jenis_usulan ?? 'Tidak ada keterangan jenis usulan' }}
+                            </p>
+
+                        </div>
+                    </div>
+
+
+                    {{-- DETAIL BAGIAN --}}
+                    @if ($subKat)
+                        <div class="mb-4">
+                            <label class="text-muted small text-uppercase fw-bold mb-2 d-block">
+                                <i class="fas fa-search me-1 text-info"></i> Detail Bagian
+                            </label>
+
+                            <span class="badge bg-info fs-6 px-3 py-2 shadow-sm">
+                                {{ $subKat }}
+                            </span>
+                        </div>
+                    @endif
+
+
+                    {{-- LOKASI --}}
+                    <div class="mb-4 p-3 bg-light rounded border-start border-4 border-warning shadow-sm">
+
+                        <div class="d-flex justify-content-between align-items-center">
+
+                            <div>
+                                <label class="text-muted small text-uppercase fw-bold">
+                                    <i class="fas fa-map-marker-alt me-1 text-danger"></i>
+                                    Lokasi Kejadian
+                                </label>
+
+                                <p class="mb-0 fw-bold text-dark">
+                                    {{ $report->lokasi }}
+                                </p>
+                            </div>
+
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($report->lokasi) }}"
+                                target="_blank" class="btn btn-sm btn-outline-secondary">
+
+                                <i class="fas fa-map"></i> Cek Map
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- DESKRIPSI --}}
+                    <div class="mb-2">
+
+                        <label class="text-muted small text-uppercase fw-bold">
+                            Deskripsi Laporan
+                        </label>
+
+                        <p class="text-dark lh-lg">
+                            {{ $report->deskripsi }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
                     {{-- FOTO SLIDER (MULTIPLE IMAGES) --}}
                     <div class="mb-4">
                         <label class="text-muted small text-uppercase fw-bold mb-2 d-block">Dokumentasi Kerusakan</label>
@@ -146,55 +417,73 @@
                             @endif
                         @endif
                     </div>
-{{-- FOOTER: TOMBOL PERUBAHAN STATUS --}}
-                <div class="card-footer bg-white py-3 border-top d-flex gap-2">
-                    
-                    {{-- 1. Tahap Proposal --}}
-                    @if (in_array($report->status, ['Proposal', 'Proposal Ditolak', 'Menunggu']))
-                        <button type="button" class="btn btn-success flex-grow-1 fw-bold" onclick="confirmStatus('Terima & Cek Lokasi', 'form-to-verifikasi')">
-                            <i class="fas fa-check-circle me-1"></i> Terima Proposal
-                        </button>
-                        <form id="form-to-verifikasi" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Verifikasi']) }}" class="d-none">@csrf</form>
+                    {{-- FOOTER: TOMBOL PERUBAHAN STATUS --}}
+                    <div class="card-footer bg-white py-3 border-top d-flex gap-2">
 
-                        <button type="button" class="btn btn-outline-danger flex-grow-1 fw-bold" onclick="confirmStatus('Tolak Proposal', 'form-reject')">
-                            <i class="fas fa-times-circle me-1"></i> Tolak
-                        </button>
-                        <form id="form-reject" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Proposal Ditolak']) }}" class="d-none">@csrf</form>
-                    @endif
+                        {{-- 1. Tahap Proposal --}}
+                        @if (in_array($report->status, ['Proposal', 'Proposal Ditolak', 'Menunggu']))
+                            <button type="button" class="btn btn-success flex-grow-1 fw-bold"
+                                onclick="confirmStatus('Terima & Cek Lokasi', 'form-to-verifikasi')">
+                                <i class="fas fa-check-circle me-1"></i> Terima Proposal
+                            </button>
+                            <form id="form-to-verifikasi" method="POST"
+                                action="{{ route('admin.laporan.update-status', [$report->id, 'Verifikasi']) }}"
+                                class="d-none">@csrf</form>
 
-                    {{-- 2. Tahap Verifikasi --}}
-                    @if ($report->status === 'Verifikasi')
-                        <button type="button" class="btn btn-info text-white flex-grow-1 fw-bold" onclick="confirmStatus('Lanjut ke Penetapan', 'form-to-penetapan')">
-                            <i class="fas fa-map-marked-alt me-1"></i> Selesai Cek Lokasi
-                        </button>
-                        <form id="form-to-penetapan" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Penetapan']) }}" class="d-none">@csrf</form>
-                    @endif
+                            <button type="button" class="btn btn-outline-danger flex-grow-1 fw-bold"
+                                onclick="confirmStatus('Tolak Proposal', 'form-reject')">
+                                <i class="fas fa-times-circle me-1"></i> Tolak
+                            </button>
+                            <form id="form-reject" method="POST"
+                                action="{{ route('admin.laporan.update-status', [$report->id, 'Proposal Ditolak']) }}"
+                                class="d-none">@csrf</form>
+                        @endif
 
-                    {{-- 3. Tahap Penetapan --}}
-                    @if ($report->status === 'Penetapan')
-                        <button type="button" class="btn btn-primary flex-grow-1 fw-bold" onclick="confirmStatus('Mulai Pelaksanaan', 'form-to-pelaksanaan')">
-                            <i class="fas fa-tools me-1"></i> Mulai Pelaksanaan
-                        </button>
-                        <form id="form-to-pelaksanaan" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Pelaksanaan']) }}" class="d-none">@csrf</form>
-                    @endif
+                        {{-- 2. Tahap Verifikasi --}}
+                        @if ($report->status === 'Verifikasi')
+                            <button type="button" class="btn btn-info text-white flex-grow-1 fw-bold"
+                                onclick="confirmStatus('Lanjut ke Penetapan', 'form-to-penetapan')">
+                                <i class="fas fa-map-marked-alt me-1"></i> Selesai Cek Lokasi
+                            </button>
+                            <form id="form-to-penetapan" method="POST"
+                                action="{{ route('admin.laporan.update-status', [$report->id, 'Penetapan']) }}"
+                                class="d-none">@csrf</form>
+                        @endif
 
-                    {{-- 4. Tahap Pelaksanaan --}}
-                    @if ($report->status === 'Pelaksanaan')
-                        <button type="button" class="btn btn-warning flex-grow-1 fw-bold" onclick="confirmStatus('Ajukan Pemeriksaan', 'form-to-pemeriksaan')">
-                            <i class="fas fa-clipboard-check me-1"></i> Selesai & Periksa
-                        </button>
-                        <form id="form-to-pemeriksaan" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Pemeriksaan']) }}" class="d-none">@csrf</form>
-                    @endif
+                        {{-- 3. Tahap Penetapan --}}
+                        @if ($report->status === 'Penetapan')
+                            <button type="button" class="btn btn-primary flex-grow-1 fw-bold"
+                                onclick="confirmStatus('Mulai Pelaksanaan', 'form-to-pelaksanaan')">
+                                <i class="fas fa-tools me-1"></i> Mulai Pelaksanaan
+                            </button>
+                            <form id="form-to-pelaksanaan" method="POST"
+                                action="{{ route('admin.laporan.update-status', [$report->id, 'Pelaksanaan']) }}"
+                                class="d-none">@csrf</form>
+                        @endif
 
-                    {{-- 5. Tahap Pemeriksaan --}}
-                    @if ($report->status === 'Pemeriksaan')
-                        <button type="button" class="btn btn-success flex-grow-1 fw-bold" onclick="confirmStatus('Selesaikan Laporan', 'form-to-selesai')">
-                            <i class="fas fa-flag-checkered me-1"></i> Tandai Selesai
-                        </button>
-                        <form id="form-to-selesai" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Selesai']) }}" class="d-none">@csrf</form>
-                    @endif
+                        {{-- 4. Tahap Pelaksanaan --}}
+                        @if ($report->status === 'Pelaksanaan')
+                            <button type="button" class="btn btn-warning flex-grow-1 fw-bold"
+                                onclick="confirmStatus('Ajukan Pemeriksaan', 'form-to-pemeriksaan')">
+                                <i class="fas fa-clipboard-check me-1"></i> Selesai & Periksa
+                            </button>
+                            <form id="form-to-pemeriksaan" method="POST"
+                                action="{{ route('admin.laporan.update-status', [$report->id, 'Pemeriksaan']) }}"
+                                class="d-none">@csrf</form>
+                        @endif
 
-                </div>
+                        {{-- 5. Tahap Pemeriksaan --}}
+                        @if ($report->status === 'Pemeriksaan')
+                            <button type="button" class="btn btn-success flex-grow-1 fw-bold"
+                                onclick="confirmStatus('Selesaikan Laporan', 'form-to-selesai')">
+                                <i class="fas fa-flag-checkered me-1"></i> Tandai Selesai
+                            </button>
+                            <form id="form-to-selesai" method="POST"
+                                action="{{ route('admin.laporan.update-status', [$report->id, 'Selesai']) }}"
+                                class="d-none">@csrf</form>
+                        @endif
+
+                    </div>
 
                     {{-- INFORMASI UTAMA --}}
                     <div class="row mb-4 mt-4">

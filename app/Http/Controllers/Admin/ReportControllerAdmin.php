@@ -86,17 +86,35 @@ class ReportControllerAdmin extends Controller
             ->with('success', 'Laporan selesai diproses');
     }
 
-    public function updateStatus($id, $status)
+    public function updateStatus(Request $request, $id, $value)
     {
         $report = Report::findOrFail($id);
-        $report->status = $status;
+
+        // Jika request berisi tipe prioritas
+        if ($request->type === 'prioritas') {
+
+            $oldPrioritas = $report->prioritas; // simpan nilai lama
+
+            $report->prioritas = $value;
+            $report->save();
+
+            ReportComment::create([
+                'report_id' => $id,
+                'user_id' => auth()->id(),
+                'pesan' => "Sistem: Prioritas laporan diubah dari {$oldPrioritas} menjadi {$value}"
+            ]);
+
+            return back()->with('success', 'Prioritas berhasil diperbarui!');
+        }
+
+        // Default = update status
+        $report->status = $value;
         $report->save();
 
-        // Opsional: Buat komentar otomatis setiap status berubah
         ReportComment::create([
             'report_id' => $id,
             'user_id' => auth()->id(),
-            'pesan' => "Sistem: Status laporan diubah menjadi " . $status
+            'pesan' => "Sistem: Status laporan diubah menjadi " . $value
         ]);
 
         return back()->with('success', 'Status berhasil diperbarui!');

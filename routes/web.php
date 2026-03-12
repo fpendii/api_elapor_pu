@@ -7,7 +7,7 @@ use App\Http\Controllers\ReportCommentController;
 use App\Http\Controllers\Admin\DashboardControllerAdmin;
 use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 use App\Http\Controllers\Admin\ProfileControllerAdmin;
-
+use App\Http\Controllers\Admin\JenisRabController;
 
 
 
@@ -121,6 +121,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/admin/profile', [ProfileControllerAdmin::class, 'index'])->name('profile.index');
     Route::get('/admin/profile/edit', [ProfileControllerAdmin::class, 'edit'])->name('profile.edit');
     Route::put('/admin/profile', [ProfileControllerAdmin::class, 'update'])->name('profile.update');
+
+    /*
+     |--------------------------------------------------------------------------
+     | Jenis RAB
+     |--------------------------------------------------------------------------
+     */
+    Route::resource('jenis-rab', JenisRabController::class)->except(['show']);
 
 
     /*|--------------------------------------------------------------------------
