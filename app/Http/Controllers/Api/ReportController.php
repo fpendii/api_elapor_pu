@@ -38,74 +38,75 @@ class ReportController extends Controller
     }
 
     public function store(Request $request)
-{
-    // 1. VALIDASI
-    $validator = Validator::make($request->all(), [
-        'user_id'          => 'required',
-        'jenis_usulan'     => 'required|string', // <--- Tambahkan validasi ini
-        'kategori'         => 'required',
-        'judul'            => 'required',
-        'lokasi'           => 'required',
-        'deskripsi'        => 'required',
-        'foto_kerusakan'   => 'required|array',
-        'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => false,
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    DB::beginTransaction();
-    try {
-        // 2. SIMPAN DATA REPORT
-        $report = Report::create([
-            'user_id'      => $request->user_id,
-            'jenis_usulan' => $request->jenis_usulan, // <--- Simpan datanya di sini
-            'kategori'     => $request->kategori,
-            'judul'        => $request->judul,
-            'lokasi'       => $request->lokasi,
-            'deskripsi'    => $request->deskripsi,
-            'status'       => 'Menunggu',
+    {
+        // 1. VALIDASI
+        $validator = Validator::make($request->all(), [
+            'user_id'          => 'required',
+            'jenis_usulan'     => 'required|string', // <--- Tambahkan validasi ini
+            'kategori'         => 'required',
+            'judul'            => 'required',
+            'lokasi'           => 'required',
+            'deskripsi'        => 'required',
+            'foto_kerusakan'   => 'required|array',
+            'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
         ]);
 
-        // 3. SIMPAN BANYAK FOTO (Kode tetap sama)
-        $pathsForAI = [];
-        if ($request->hasFile('foto_kerusakan')) {
-            foreach ($request->file('foto_kerusakan') as $file) {
-                $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('reports', $namaFile, 'public');
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-                ReportImage::create([
-                    'report_id' => $report->id,
-                    'path'      => $path
-                ]);
+        log::error($request->all());
 
-                $pathsForAI[] = $path;
+        DB::beginTransaction();
+        try {
+            // 2. SIMPAN DATA REPORT
+            $report = Report::create([
+                'user_id'      => $request->user_id,
+                'jenis_usulan' => $request->jenis_usulan, // <--- Simpan datanya di sini
+                'kategori'     => $request->kategori,
+                'judul'        => $request->judul,
+                'lokasi'       => $request->lokasi,
+                'deskripsi'    => $request->deskripsi,
+                // 'status'       => 'Menunggu',
+            ]);
+
+            // 3. SIMPAN BANYAK FOTO (Kode tetap sama)
+            $pathsForAI = [];
+            if ($request->hasFile('foto_kerusakan')) {
+                foreach ($request->file('foto_kerusakan') as $file) {
+                    $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('reports', $namaFile, 'public');
+
+                    ReportImage::create([
+                        'report_id' => $report->id,
+                        'path'      => $path
+                    ]);
+
+                    $pathsForAI[] = $path;
+                }
             }
+
+            DB::commit();
+
+            // 4. ANALISIS AI (Tetap menggunakan foto pertama)
+            if (!empty($pathsForAI)) {
+                $this->analyzeWithAI($report, $pathsForAI[0]);
+            }
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Laporan berhasil dikirim dengan ' . count($pathsForAI) . ' foto',
+                'data'    => $report->load('images')
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('STORE REPORT ERROR: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat menyimpan laporan'], 500);
         }
-
-        DB::commit();
-
-        // 4. ANALISIS AI (Tetap menggunakan foto pertama)
-        if (!empty($pathsForAI)) {
-            $this->analyzeWithAI($report, $pathsForAI[0]);
-        }
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Laporan berhasil dikirim dengan ' . count($pathsForAI) . ' foto',
-            'data'    => $report->load('images')
-        ], 201);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('STORE REPORT ERROR: ' . $e->getMessage());
-        return response()->json(['status' => false, 'message' => 'Terjadi kesalahan saat menyimpan laporan'], 500);
     }
-}
 
     /**
      * Fungsi Helper untuk Analisis AI agar code store() lebih rapi
@@ -157,6 +158,33 @@ class ReportController extends Controller
             }
         } catch (\Throwable $e) {
             Log::error('AI ANALYSIS ERROR: ' . $e->getMessage());
+        }
+    }
+
+    public function getStats()
+    {
+        try {
+            // Menghitung total semua aduan
+            $total = \App\Models\Report::count();
+
+            // Menghitung aduan yang statusnya 'proses'
+            // Sesuaikan string 'proses' dengan value yang Anda simpan di database
+            $proses = \App\Models\Report::where('status', 'proses')->count();
+
+            // Menghitung aduan yang statusnya 'selesai'
+            $selesai = \App\Models\Report::where('status', 'selesai')->count();
+
+            return response()->json([
+                'status'  => 'success',
+                'total'   => $total,
+                'proses'  => $proses,
+                'selesai' => $selesai,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

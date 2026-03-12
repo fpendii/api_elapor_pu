@@ -7,7 +7,9 @@ use App\Http\Controllers\ReportCommentController;
 use App\Http\Controllers\Admin\DashboardControllerAdmin;
 use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 use App\Http\Controllers\Admin\ProfileControllerAdmin;
-use App\Http\Controllers\LandingPageController;
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +25,7 @@ use App\Http\Controllers\LandingPageController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/', [AuthentikasiController::class, 'showLogin']);
 Route::get('/login', [AuthentikasiController::class, 'showLogin'])->name('login');
 
 Route::post('/login', [AuthentikasiController::class, 'login']);
@@ -125,5 +127,5 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Ujicoba Cloud Vision API
     |--------------------------------------------------------------------------
     */
-    Route::get('/cloud-vision/test', [App\Http\Controllers\Ujicoba\CloudVisionController::class, 'test'])->name('cloud-vision.test');
+    // Route::get('/cloud-vision/test', [App\Http\Controllers\Ujicoba\CloudVisionController::class, 'test'])->name('cloud-vision.test');
 });

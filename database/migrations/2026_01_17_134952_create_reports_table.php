@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('judul');
             $table->string('lokasi');
             $table->text('deskripsi');
-            $table->string('foto_kerusakan');
+            $table->string('foto_kerusakan')->nullable();
             $table->enum('status', ['Menunggu', 'Proses', 'Selesai','Ditolak'])->default('Menunggu');
             $table->timestamps();
         });

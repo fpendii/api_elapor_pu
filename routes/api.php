@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ReportCommentController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,9 @@ use App\Http\Controllers\Api\ReportCommentController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Tanpa middleware auth:sanctum
+Route::get('/user-profile/{id}', [UserController::class, 'show']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -32,3 +36,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/tes', function () {
     return response()->json(['message' => 'Koneksi Berhasil!']);
 });
+
+Route::get('/dashboard-stats', [ReportController::class, 'getStats']);

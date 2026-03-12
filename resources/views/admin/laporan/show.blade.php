@@ -146,7 +146,55 @@
                             @endif
                         @endif
                     </div>
+{{-- FOOTER: TOMBOL PERUBAHAN STATUS --}}
+                <div class="card-footer bg-white py-3 border-top d-flex gap-2">
+                    
+                    {{-- 1. Tahap Proposal --}}
+                    @if (in_array($report->status, ['Proposal', 'Proposal Ditolak', 'Menunggu']))
+                        <button type="button" class="btn btn-success flex-grow-1 fw-bold" onclick="confirmStatus('Terima & Cek Lokasi', 'form-to-verifikasi')">
+                            <i class="fas fa-check-circle me-1"></i> Terima Proposal
+                        </button>
+                        <form id="form-to-verifikasi" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Verifikasi']) }}" class="d-none">@csrf</form>
 
+                        <button type="button" class="btn btn-outline-danger flex-grow-1 fw-bold" onclick="confirmStatus('Tolak Proposal', 'form-reject')">
+                            <i class="fas fa-times-circle me-1"></i> Tolak
+                        </button>
+                        <form id="form-reject" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Proposal Ditolak']) }}" class="d-none">@csrf</form>
+                    @endif
+
+                    {{-- 2. Tahap Verifikasi --}}
+                    @if ($report->status === 'Verifikasi')
+                        <button type="button" class="btn btn-info text-white flex-grow-1 fw-bold" onclick="confirmStatus('Lanjut ke Penetapan', 'form-to-penetapan')">
+                            <i class="fas fa-map-marked-alt me-1"></i> Selesai Cek Lokasi
+                        </button>
+                        <form id="form-to-penetapan" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Penetapan']) }}" class="d-none">@csrf</form>
+                    @endif
+
+                    {{-- 3. Tahap Penetapan --}}
+                    @if ($report->status === 'Penetapan')
+                        <button type="button" class="btn btn-primary flex-grow-1 fw-bold" onclick="confirmStatus('Mulai Pelaksanaan', 'form-to-pelaksanaan')">
+                            <i class="fas fa-tools me-1"></i> Mulai Pelaksanaan
+                        </button>
+                        <form id="form-to-pelaksanaan" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Pelaksanaan']) }}" class="d-none">@csrf</form>
+                    @endif
+
+                    {{-- 4. Tahap Pelaksanaan --}}
+                    @if ($report->status === 'Pelaksanaan')
+                        <button type="button" class="btn btn-warning flex-grow-1 fw-bold" onclick="confirmStatus('Ajukan Pemeriksaan', 'form-to-pemeriksaan')">
+                            <i class="fas fa-clipboard-check me-1"></i> Selesai & Periksa
+                        </button>
+                        <form id="form-to-pemeriksaan" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Pemeriksaan']) }}" class="d-none">@csrf</form>
+                    @endif
+
+                    {{-- 5. Tahap Pemeriksaan --}}
+                    @if ($report->status === 'Pemeriksaan')
+                        <button type="button" class="btn btn-success flex-grow-1 fw-bold" onclick="confirmStatus('Selesaikan Laporan', 'form-to-selesai')">
+                            <i class="fas fa-flag-checkered me-1"></i> Tandai Selesai
+                        </button>
+                        <form id="form-to-selesai" method="POST" action="{{ route('admin.laporan.update-status', [$report->id, 'Selesai']) }}" class="d-none">@csrf</form>
+                    @endif
+
+                </div>
 
                     {{-- INFORMASI UTAMA --}}
                     <div class="row mb-4 mt-4">
