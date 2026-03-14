@@ -10,12 +10,11 @@ class DashboardControllerAdmin extends Controller
 {
     public function index()
     {
-   
+
 
         // 1. Ambil semua jumlah status milik user ini sekaligus dalam satu query
         // pluck('total', 'status') akan menghasilkan array: ['Proposal' => 5, 'Selesai' => 2, ...]
-        $counts = Report::
-            selectRaw('status, count(*) as total')
+        $counts = Report::selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -38,11 +37,19 @@ class DashboardControllerAdmin extends Controller
             'selesai'   => $counts->get('Selesai', 0),
         ];
 
-        // 3. Ambil 5 laporan terbaru milik user (tanpa filter status agar user lihat progres terbarunya)
-        $recent_reports = Report::
-            latest()
-            ->take(5)
-            ->get();
+       $recent_reports = Report::where('status', '!=', 'Selesai')
+    ->orderByRaw("
+        CASE prioritas
+            WHEN 'Darurat' THEN 4
+            WHEN 'Tinggi' THEN 3
+            WHEN 'Sedang' THEN 2
+            WHEN 'Rendah' THEN 1
+            ELSE 0
+        END DESC
+    ")
+    ->orderBy('created_at', 'asc') // tanggal paling lama
+    ->take(5)
+    ->get();
 
         return view('admin.dashboard.index', compact('stats', 'recent_reports'));
     }
