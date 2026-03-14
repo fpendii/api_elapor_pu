@@ -17,6 +17,7 @@ class Report extends Model
         'deskripsi',
         'foto_kerusakan',
         'jenis_usulan',
+        'jenis_rab_id',
 
         // AI RESULT
         'ai_analysis',
@@ -29,6 +30,11 @@ class Report extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function jenisRab()
+    {
+        return $this->belongsTo(JenisRab::class, 'jenis_rab_id');
     }
 
     public function comments()

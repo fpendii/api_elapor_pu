@@ -60,6 +60,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Status Actions
     |--------------------------------------------------------------------------
     */
+
+    // Route BARU khusus Jenis DPA
+    Route::post('/admin/laporan/update-jenis-dpa/{id}/{rabId}', [ReportControllerAdmin::class, 'updateJenisDpa'])
+        ->name('laporan.update-jenis-dpa');
+
     Route::post('laporan/{report}/terima', [ReportControllerAdmin::class, 'terima'])
         ->name('laporan.terima');
 
@@ -82,6 +87,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Export Laporan
     |--------------------------------------------------------------------------
     */
+
+
     Route::get('/laporan/export/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'excel'])
         ->name('laporan.export.excel');
 
@@ -129,8 +136,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
      */
     Route::resource('jenis-rab', JenisRabController::class)->except(['show']);
 
-    Route::put('/jenis-rab/{jenis_rab}/update-rab', [JenisRabController::class, 'updateRab'])->name('jenis-rab.update-rab');
-
+    // Route::put('/jenis-rab/{jenis_rab}/update-rab', [JenisRabController::class, 'updateRab'])->name('jenis-rab.update-rab');
+    // // Gunakan PUT sesuai dengan @method('PUT') di Blade kamu
+    Route::put('/admin/laporan/update-anggaran/{id}', [ReportControllerAdmin::class, 'updateAnggaran'])
+        ->name('jenis-rab.update-rab');
 
     /*|--------------------------------------------------------------------------
     | Ujicoba Cloud Vision API
