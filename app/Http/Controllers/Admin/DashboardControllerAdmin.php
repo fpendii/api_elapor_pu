@@ -43,6 +43,7 @@ class DashboardControllerAdmin extends Controller
             WHEN 'Darurat' THEN 4
             WHEN 'Tinggi' THEN 3
             WHEN 'Sedang' THEN 2
+            
             WHEN 'Rendah' THEN 1
             ELSE 0
         END DESC
