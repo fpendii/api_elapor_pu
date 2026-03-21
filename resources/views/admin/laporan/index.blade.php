@@ -76,35 +76,52 @@
             </div>
         </div>
 
+
         {{-- STEPPER & FILTER SECTION --}}
         <div class="row g-3 mb-4 align-items-center">
-            {{-- Stepper Progress --}}
-            <div class="col-lg-8">
-                <div class="bg-white p-2 shadow-sm d-flex align-items-center justify-content-between overflow-auto"
-                    style="border-radius: 15px; white-space: nowrap;">
+            {{-- Modern Interactive Stepper --}}
+            <div class="col-lg-9">
+                <div class="stepper-wrapper bg-white shadow-sm p-3 d-flex align-items-center overflow-auto"
+                    style="border-radius: 20px;">
                     @foreach ($statusConfig as $name => $cfg)
-                        <div class="d-flex align-items-center mx-2">
-                            <span class="badge {{ $cfg[1] }} text-{{ $cfg[0] }} px-3 py-2 fw-600"
-                                style="border-radius: 10px; font-size: 0.8rem;">
-                                {{ $name }}
-                            </span>
+                        <div class="stepper-item d-flex align-items-center {{ $status === $name ? 'is-active' : '' }}">
+                            <a href="{{ route('admin.laporan.index', ['status' => $name]) }}"
+                                class="text-decoration-none d-flex align-items-center">
+                                {{-- Icon Circle --}}
+                                <div class="step-icon-circle rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all {{ $status === $name ? 'bg-' . $cfg[0] . ' text-white' : 'bg-light text-muted' }}"
+                                    style="width: 38px; height: 38px;">
+                                    <i class="bi {{ $cfg[2] }} fs-6"></i>
+                                </div>
+
+                                {{-- Label --}}
+                                <div class="ms-3 me-2">
+                                    <div class="step-label fw-800 small {{ $status === $name ? 'text-dark' : 'text-muted opacity-75' }}"
+                                        style="letter-spacing: 0.3px; line-height: 1;">
+                                        {{ $name }}
+                                    </div>
+                                    @if (($count[$name] ?? 0) > 0)
+                                        <span class="badge rounded-pill bg-danger mt-1"
+                                            style="font-size: 0.6rem;">{{ $count[$name] }}</span>
+                                    @endif
+                                </div>
+                            </a>
+
                             @if (!$loop->last)
-                                <i class="bi bi-chevron-right mx-2 text-muted opacity-50"></i>
+                                <div class="step-connector mx-3 d-none d-md-block">
+                                    <i class="bi bi-chevron-right text-muted opacity-25"></i>
+                                </div>
                             @endif
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            {{-- Export Buttons --}}
-            <div class="col-lg-4 text-lg-end">
-                <div class="d-inline-flex gap-2">
-
-                    <a href="{{ route('admin.laporan.export.pdf', ['status' => $status]) }}"
-                        class="btn btn-white border-0 shadow-sm fw-600 px-3 py-2">
-                        <i class="bi bi-file-earmark-pdf text-danger me-1"></i> PDF
-                    </a>
-                </div>
+            {{-- Export Button --}}
+            <div class="col-lg-3 text-lg-end">
+                <a href="{{ route('admin.laporan.export.pdf', ['status' => $status]) }}"
+                    class="btn btn-white border-0 shadow-sm fw-600 px-4 py-3 w-100 rounded-4 transition-up">
+                    <i class="bi bi-file-earmark-pdf text-danger me-2 fs-5"></i> Cetak PDF
+                </a>
             </div>
         </div>
 
