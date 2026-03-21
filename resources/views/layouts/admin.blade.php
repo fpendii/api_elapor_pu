@@ -189,13 +189,13 @@
             <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}"
                 href="{{ url('admin/users/verifikasi') }}">
                 <i class="bi bi-people"></i>
-                <span>Manajemen User</span>
+                <span>Akun Masyarakat</span>
             </a>
 
             <hr class="my-4 opacity-50">
 
             <small class="text-uppercase text-muted fw-bold mb-3 d-block ms-2"
-                style="font-size: 0.65rem; letter-spacing: 1px;">Setting</small>
+                style="font-size: 0.65rem; letter-spacing: 1px;">Pengaturan</small>
 
             <a class="nav-link {{ request()->is('admin/jenis-dap*') ? 'active' : '' }}"
                 href="{{ url('admin/jenis-dap') }}">

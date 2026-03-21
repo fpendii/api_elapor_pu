@@ -74,6 +74,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('laporan/{report}/selesai', [ReportControllerAdmin::class, 'selesai'])
         ->name('laporan.selesai');
 
+
     /*
     |--------------------------------------------------------------------------
     | Manajemen User
@@ -89,10 +90,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     */
 
 
-    Route::get('/laporan/export/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'excel'])
+    Route::get('/laporan/export/excel/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'excel'])
         ->name('laporan.export.excel');
 
-    Route::get('/export/pdf/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'pdf'])
+    // URL nanti: /admin/laporan/export/pdf/{status}
+    Route::get('/laporan/export/pdf/{status}', [App\Http\Controllers\Admin\LaporanExportController::class, 'pdf'])
         ->name('laporan.export.pdf');
 
     /*

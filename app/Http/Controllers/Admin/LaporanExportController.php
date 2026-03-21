@@ -31,20 +31,13 @@ class LaporanExportController extends Controller
     // EXPORT PDF
     public function pdf($status)
     {
-        abort_unless(in_array($status, $this->allowedStatus), 404);
+        $query = Report::query();
+        if ($status !== 'Semua') {
+            $query->where('status', $status);
+        }
+        $reports = $query->get();
 
-        $reports = Report::with('user')
-            ->where('status', $status)
-            ->latest()
-            ->get();
-
-        $pdf = Pdf::loadView('admin.laporan.export-pdf', [
-            'reports' => $reports,
-            'status'  => $status,
-        ])->setPaper('A4', 'portrait');
-
-        return $pdf->download(
-            'laporan-' . strtolower($status) . '.pdf'
-        );
+        $pdf = Pdf::loadView('admin.laporan.pdf', compact('reports', 'status'));
+        return $pdf->download('laporan-'.strtolower($status).'.pdf');
     }
 }
