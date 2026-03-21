@@ -9,7 +9,8 @@
     {{-- Bootstrap 5.3.3 --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     {{-- Google Font: Plus Jakarta Sans --}}
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     {{-- Bootstrap Icons --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -17,9 +18,12 @@
         :root {
             --brand-yellow: #ffc107;
             --brand-dark: #1e293b;
-            --sidebar-bg: #ffffff; /* Sidebar Putih Bersih */
-            --body-bg: #f1f5f9;    /* Abu-abu sangat muda untuk background */
-            --accent-light: #fffbeb; /* Kuning sangat muda untuk hover */
+            --sidebar-bg: #ffffff;
+            /* Sidebar Putih Bersih */
+            --body-bg: #f1f5f9;
+            /* Abu-abu sangat muda untuk background */
+            --accent-light: #fffbeb;
+            /* Kuning sangat muda untuk hover */
         }
 
         body {
@@ -127,7 +131,7 @@
         .card {
             border: 1px solid #e2e8f0;
             border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .btn-warning {
@@ -143,8 +147,14 @@
         }
 
         @media (max-width: 992px) {
-            .sidebar { margin-left: -260px; position: fixed; }
-            .content-wrapper { margin-left: 0; }
+            .sidebar {
+                margin-left: -260px;
+                position: fixed;
+            }
+
+            .content-wrapper {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
@@ -161,36 +171,45 @@
         </div>
 
         <div class="nav-custom">
-            <small class="text-uppercase text-muted fw-bold mb-3 d-block ms-2" style="font-size: 0.65rem; letter-spacing: 1px;">Menu Utama</small>
-            
-            <a class="nav-link {{ request()->is('admin/dashboard*') ? 'active' : '' }}" href="{{ url('admin/dashboard') }}">
+            <small class="text-uppercase text-muted fw-bold mb-3 d-block ms-2"
+                style="font-size: 0.65rem; letter-spacing: 1px;">Menu Utama</small>
+
+            <a class="nav-link {{ request()->is('admin/dashboard*') ? 'active' : '' }}"
+                href="{{ url('admin/dashboard') }}">
                 <i class="bi bi-house-door"></i>
                 <span>Dashboard</span>
             </a>
-            <a class="nav-link {{ request()->is('admin/jenis-rab*') ? 'active' : '' }}" href="{{ url('admin/jenis-rab') }}">
-                <i class="bi bi-list-task"></i>
-                <span>Jenis RAB</span>
-            </a>
+
 
             <a class="nav-link {{ request()->is('admin/laporan*') ? 'active' : '' }}" href="{{ url('admin/laporan') }}">
                 <i class="bi bi-card-list"></i>
                 <span>Daftar Laporan</span>
             </a>
 
-            <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}" href="{{ url('admin/users/verifikasi') }}">
+            <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}"
+                href="{{ url('admin/users/verifikasi') }}">
                 <i class="bi bi-people"></i>
                 <span>Manajemen User</span>
             </a>
 
             <hr class="my-4 opacity-50">
 
-            <small class="text-uppercase text-muted fw-bold mb-3 d-block ms-2" style="font-size: 0.65rem; letter-spacing: 1px;">Personal</small>
+            <small class="text-uppercase text-muted fw-bold mb-3 d-block ms-2"
+                style="font-size: 0.65rem; letter-spacing: 1px;">Setting</small>
 
-            <a class="nav-link {{ request()->is('admin/profile*') ? 'active' : '' }}" href="{{ route('admin.profile.index') }}">
+            <a class="nav-link {{ request()->is('admin/jenis-dap*') ? 'active' : '' }}"
+                href="{{ url('admin/jenis-dap') }}">
+                <i class="bi bi-list-task"></i>
+                <span>Jenis DAP</span>
+            </a>
+
+            <a class="nav-link {{ request()->is('admin/profile*') ? 'active' : '' }}"
+                href="{{ route('admin.profile.index') }}">
                 <i class="bi bi-person-circle"></i>
                 <span>Profil</span>
             </a>
-            
+
+
             <a class="nav-link text-danger mt-5" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="bi bi-box-arrow-left"></i>
                 <span>Keluar</span>

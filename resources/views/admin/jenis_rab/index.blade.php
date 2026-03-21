@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Jenis RAB')
-@section('page-title', 'Manajemen Jenis RAB')
+@section('title', 'Jenis DAP')
+@section('page-title', 'Manajemen Jenis DAP')
 
 @section('content')
 
@@ -17,14 +17,14 @@
 {{-- FORM TAMBAH JENIS RAB --}}
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white py-3">
-        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-plus-circle me-2 text-warning"></i>Tambah Jenis RAB Baru</h6>
+        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-plus-circle me-2 text-warning"></i>Tambah Jenis DAP Baru</h6>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('admin.jenis-rab.store') }}" onsubmit="return confirmSubmit(this, 'Simpan Jenis RAB baru?')">
+        <form method="POST" action="{{ route('admin.jenis-dap.store') }}" onsubmit="return confirmSubmit(this, 'Simpan Jenis DAP baru?')">
             @csrf
             <div class="row g-3">
                 <div class="col-md-5">
-                    <label class="form-label small fw-bold text-muted">Nama RAB / Pekerjaan</label>
+                    <label class="form-label small fw-bold text-muted">Nama DAP / Pekerjaan</label>
                     <input name="nama_rab" class="form-control" placeholder="Contoh: Perbaikan Aspal Jalan" required>
                 </div>
                 <div class="col-md-4">
@@ -50,7 +50,7 @@
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4" width="50">No</th>
-                        <th>Nama Jenis RAB</th>
+                        <th>Nama Jenis DAP</th>
                         <th>Estimasi Dana</th>
                         <th class="text-center" width="120">Aksi</th>
                     </tr>
@@ -71,7 +71,7 @@
                                 </button>
 
                                 {{-- Tombol Hapus --}}
-                                <form method="POST" action="{{ route('admin.jenis-rab.destroy', $rab->id) }}" class="d-inline" onsubmit="return confirmDelete(this)">
+                                <form method="POST" action="{{ route('admin.jenis-dap.destroy', $rab->id) }}" class="d-inline" onsubmit="return confirmDelete(this)">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-light text-danger border">
                                         <i class="bi bi-trash"></i>
@@ -89,7 +89,7 @@
                                     <h5 class="fw-bold mb-0">Edit Jenis RAB</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ route('admin.jenis-rab.update', $rab->id) }}" method="POST" onsubmit="return confirmSubmit(this, 'Simpan perubahan data ini?')">
+                                <form action="{{ route('admin.jenis-dap.update', $rab->id) }}" method="POST" onsubmit="return confirmSubmit(this, 'Simpan perubahan data ini?')">
                                     @csrf
                                     @method('PUT')
                                     <div class="modal-body p-4">

@@ -23,8 +23,8 @@ class JenisRabController extends Controller
 
         JenisRab::create($request->all());
 
-        return redirect()->route('admin.jenis-rab.index')
-            ->with('success', 'Jenis RAB berhasil ditambahkan.');
+        return redirect()->route('admin.jenis-dap.index')
+            ->with('success', 'Jenis DAP berhasil ditambahkan.');
     }
 
     public function update(Request $request, $id)
@@ -37,8 +37,8 @@ class JenisRabController extends Controller
         $jenisRab = JenisRab::findOrFail($id);
         $jenisRab->update($request->all());
 
-        return redirect()->route('admin.jenis-rab.index')
-            ->with('success', 'Jenis RAB berhasil diperbarui.');
+        return redirect()->route('admin.jenis-dap.index')
+            ->with('success', 'Jenis DAP berhasil diperbarui.');
     }
 
     public function destroy($id)
@@ -46,7 +46,7 @@ class JenisRabController extends Controller
         $jenisRab = JenisRab::findOrFail($id);
         $jenisRab->delete();
 
-        return redirect()->route('admin.jenis-rab.index')
-            ->with('success', 'Jenis RAB berhasil dihapus.');
+        return redirect()->route('admin.jenis-dap.index')
+            ->with('success', 'Jenis DAP berhasil dihapus.');
     }
 }

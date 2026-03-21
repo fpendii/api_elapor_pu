@@ -134,7 +134,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
      | Jenis RAB
      |--------------------------------------------------------------------------
      */
-    Route::resource('jenis-rab', JenisRabController::class)->except(['show']);
+    Route::resource('jenis-dap', JenisRabController::class)->except(['show']);
 
     // Route::put('/jenis-rab/{jenis_rab}/update-rab', [JenisRabController::class, 'updateRab'])->name('jenis-rab.update-rab');
     // // Gunakan PUT sesuai dengan @method('PUT') di Blade kamu
