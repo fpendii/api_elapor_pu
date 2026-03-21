@@ -24,8 +24,8 @@
                         <div>
                             <h3 class="fw-800 text-dark mb-1">Selamat Datang,
                                 {{ explode(' ', trim(auth()->user()->name))[0] }}!</h3>
-                            <p class="text-muted mb-0 opacity-75">Sistem memantau <span
-                                    class="text-dark fw-600">{{ $stats['total'] }} laporan</span> Anda hari ini.</p>
+                            <p class="text-muted mb-0 opacity-75">Sistem memantau  <span
+                                    class="text-dark fw-600"> {{ $stats['total'] }} laporan</span> Anda hari ini.</p>
                         </div>
                     </div>
                     {{-- <div class="mt-3 mt-md-0">
