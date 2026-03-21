@@ -227,11 +227,26 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                            <div class="card-footer bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                {{-- Info data yang tampil --}}
+                <div class="text-muted small fw-600">
+                    Menampilkan {{ $reports->firstItem() ?? 0 }} - {{ $reports->lastItem() ?? 0 }}
+                    dari {{ $reports->total() }} Laporan
+                </div>
+
+                {{-- Link Navigasi --}}
+                <div>
+                    {{ $reports->links() }}
+                </div>
+            </div>
+        </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
     </div>
 
     <style>

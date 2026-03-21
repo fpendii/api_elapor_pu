@@ -16,7 +16,7 @@ class ReportControllerAdmin extends Controller
         $status = $request->query('status', 'Semua');
         $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
 
-        // Ambil counts sekaligus dan isi default 0 untuk status yang kosong
+        // 1. Ambil counts (Tetap sama)
         $countsFromDb = Report::selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
@@ -25,11 +25,18 @@ class ReportControllerAdmin extends Controller
             $s => $countsFromDb->get($s, 0)
         ])->toArray();
 
-        // Query data laporan
-        $reports = Report::with('user')
-            ->when($status !== 'Semua', fn($q) => $q->where('status', $status))
-            ->latest()
-            ->get();
+        $query = \App\Models\Report::with('user');
+
+        // Terapkan filter status
+        if ($status !== 'Semua') {
+            $query->where('status', $status);
+        }
+
+        // Eksekusi Pagination LANGSUNG dari query builder
+        $reports = $query->latest()->paginate(10);
+
+        // Tambahkan query string secara manual (sebagai pengganti withQueryString)
+        $reports->appends(['status' => $status]);
 
         return view('admin.laporan.index', compact('reports', 'status', 'count'));
     }
