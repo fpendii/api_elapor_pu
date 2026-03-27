@@ -186,6 +186,13 @@
                 <span>Daftar Laporan</span>
             </a>
 
+            <a class="nav-link {{ request()->is('admin/logs*') ? 'active' : '' }}"
+                href="{{ url('admin/logs/penggunaan-dpa') }}">
+                {{-- ikon log --}}
+                <i class="bi bi-list-task"></i>
+                <span>Log DPA</span>
+            </a>
+
             <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}"
                 href="{{ url('admin/users/verifikasi') }}">
                 <i class="bi bi-people"></i>
