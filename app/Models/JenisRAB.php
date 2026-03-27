@@ -17,4 +17,9 @@ class JenisRab extends Model
         'nama_rab',
         'dana',
     ];
+
+    public function logs()
+    {
+        return $this->hasMany(PenggunaanRabLog::class, 'jenis_rab_id');
+    }
 }

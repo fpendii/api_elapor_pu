@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardControllerAdmin;
 use App\Http\Controllers\Admin\UserVerificationControllerAdmin;
 use App\Http\Controllers\Admin\ProfileControllerAdmin;
 use App\Http\Controllers\Admin\JenisRabController;
+use App\Http\Controllers\Admin\DpaLogController;    
 
 
 
@@ -73,6 +74,12 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::post('laporan/{report}/selesai', [ReportControllerAdmin::class, 'selesai'])
         ->name('laporan.selesai');
+
+    // Route untuk Log Penggunaan Dana DPA
+    Route::get('/logs/penggunaan-dpa', [DpaLogController::class, 'index'])->name('logs.dpa');
+
+    // Jika nanti butuh detail
+    Route::get('/logs/penggunaan-dpa/{id}', [DpaLogController::class, 'show'])->name('logs.dpa.show');
 
 
     /*

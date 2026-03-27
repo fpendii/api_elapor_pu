@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Report;
 use App\Models\ReportComment;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ReportControllerAdmin extends Controller
 {
@@ -21,8 +21,8 @@ class ReportControllerAdmin extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $count = collect($listStatus)->mapWithKeys(fn($s) => [
-            $s => $countsFromDb->get($s, 0)
+        $count = collect($listStatus)->mapWithKeys(fn ($s) => [
+            $s => $countsFromDb->get($s, 0),
         ])->toArray();
 
         $query = \App\Models\Report::with('user');
@@ -41,18 +41,18 @@ class ReportControllerAdmin extends Controller
         return view('admin.laporan.index', compact('reports', 'status', 'count'));
     }
 
-
     public function show($id)
     {
         $report = Report::with('user')->findOrFail($id);
         $allJenisRab = \App\Models\JenisRab::all();
+
         return view('admin.laporan.show', compact('report', 'allJenisRab'));
     }
 
     public function terima(Report $report)
     {
         $report->update([
-            'status' => 'Proses'
+            'status' => 'Proses',
         ]);
 
         return redirect()
@@ -63,7 +63,7 @@ class ReportControllerAdmin extends Controller
     public function tolak(Report $report)
     {
         $report->update([
-            'status' => 'Ditolak'
+            'status' => 'Ditolak',
         ]);
 
         return redirect()
@@ -74,7 +74,7 @@ class ReportControllerAdmin extends Controller
     public function selesai(Report $report)
     {
         $report->update([
-            'status' => 'Selesai'
+            'status' => 'Selesai',
         ]);
 
         return redirect()
@@ -102,7 +102,7 @@ class ReportControllerAdmin extends Controller
         ReportComment::create([
             'report_id' => $id,
             'user_id' => auth()->id(),
-            'pesan' => "Sistem: Jenis DPA diubah dari [{$oldRab}] menjadi [{$newRab}] oleh {$userName}"
+            'pesan' => "Sistem: Jenis DPA diubah dari [{$oldRab}] menjadi [{$newRab}] oleh {$userName}",
         ]);
 
         return back()->with('success', 'Jenis DPA berhasil diperbarui!');
@@ -122,7 +122,7 @@ class ReportControllerAdmin extends Controller
             ReportComment::create([
                 'report_id' => $id,
                 'user_id' => auth()->id(),
-                'pesan' => "Sistem: Prioritas laporan diubah dari [{$oldPrioritas}] menjadi [{$value}] oleh {$userName}"
+                'pesan' => "Sistem: Prioritas laporan diubah dari [{$oldPrioritas}] menjadi [{$value}] oleh {$userName}",
             ]);
 
             return back()->with('success', 'Prioritas berhasil diperbarui!');
@@ -143,7 +143,7 @@ class ReportControllerAdmin extends Controller
             ReportComment::create([
                 'report_id' => $id,
                 'user_id' => auth()->id(),
-                'pesan' => "Sistem: Kategori RAB diubah dari [{$oldRab}] menjadi [{$newRab}] oleh {$userName}"
+                'pesan' => "Sistem: Kategori RAB diubah dari [{$oldRab}] menjadi [{$newRab}] oleh {$userName}",
             ]);
 
             return back()->with('success', 'Kategori RAB berhasil diperbarui!');
@@ -157,7 +157,7 @@ class ReportControllerAdmin extends Controller
         ReportComment::create([
             'report_id' => $id,
             'user_id' => auth()->id(),
-            'pesan' => "Sistem: Status laporan diubah dari [{$oldStatus}] menjadi [{$value}] oleh {$userName}"
+            'pesan' => "Sistem: Status laporan diubah dari [{$oldStatus}] menjadi [{$value}] oleh {$userName}",
         ]);
 
         return back()->with('success', 'Status berhasil diperbarui!');
@@ -165,13 +165,9 @@ class ReportControllerAdmin extends Controller
 
     public function updateAnggaran(Request $request, $id)
     {
-        // Bersihkan titik dari input (Contoh: "2.000.000" jadi "2000000")
-        // Jika input sudah bersih, fungsi ini tidak akan merusak apapun.
         $nominalInput = str_replace('.', '', $request->nominal_rab);
 
-        $request->merge([
-            'nominal_rab' => $nominalInput,
-        ]);
+        $request->merge(['nominal_rab' => $nominalInput]);
 
         $request->validate([
             'nominal_rab' => 'required|numeric|min:0',
@@ -179,41 +175,67 @@ class ReportControllerAdmin extends Controller
         ]);
 
         $report = Report::findOrFail($id);
-        $jenisRab = $report->jenisRab;
+        $jenisRab = \App\Models\JenisRab::lockForUpdate()->find($report->jenis_rab_id);
 
-        if (!$jenisRab) {
+        if (! $jenisRab) {
             return back()->with('error', 'Jenis DPA belum dipilih!');
         }
 
-        // Gunakan DB Transaction agar jika error saldo tidak kacau
         return DB::transaction(function () use ($request, $report, $jenisRab) {
+            $oldNominal = $report->nominal_rab ?? 0;
+            $newNominal = $request->nominal_rab;
+            $userName = auth()->user()->name;
 
-            // 1. Kembalikan saldo lama (jika ada)
-            if ($report->nominal_rab) {
-                $jenisRab->increment('dana', $report->nominal_rab);
+            // 1. Hitung saldo awal asli sebelum dikembalikan
+            $saldoAwalReal = $jenisRab->dana;
+
+            // 2. Kembalikan saldo lama ke master (Reversal)
+            if ($oldNominal > 0) {
+                $jenisRab->increment('dana', $oldNominal);
             }
 
-            // 2. Cek apakah saldo cukup setelah dikembalikan
-            if ($jenisRab->dana < $request->nominal_rab) {
-                return back()->with('error', 'Saldo tidak cukup!');
+            // 3. Cek apakah saldo cukup untuk nominal baru
+            if ($jenisRab->dana < $newNominal) {
+                return back()->with('error', 'Saldo dana '.$jenisRab->nama_rab.' tidak mencukupi!');
             }
 
-            // 3. Potong saldo dengan nominal baru
-            $jenisRab->decrement('dana', $request->nominal_rab);
+            // 4. Potong saldo dengan nominal baru
+            $jenisRab->decrement('dana', $newNominal);
+            $saldoAkhirReal = $jenisRab->dana;
 
-            // 4. Update data laporan
-            $report->nominal_rab = $request->nominal_rab;
-
+            // 5. Update data laporan
+            $report->nominal_rab = $newNominal;
             if ($request->hasFile('dokumen_rab')) {
                 if ($report->dokumen_rab) {
                     Storage::disk('public')->delete($report->dokumen_rab);
                 }
                 $report->dokumen_rab = $request->file('dokumen_rab')->store('dokumen_rab', 'public');
             }
-
             $report->save();
 
-            return back()->with('success', 'Anggaran berhasil diupdate!');
+            // 6. CATAT KE LOG PENGGUNAAN
+            // Kita catat selisihnya (netto) agar log tidak membingungkan
+            $selisih = $newNominal - $oldNominal;
+
+            if ($selisih != 0) {
+                $jenisRab->logs()->create([
+                    'nominal_penggunaan' => $selisih, // Positif jika nambah penggunaan, negatif jika berkurang
+                    'saldo_awal' => $saldoAwalReal,
+                    'saldo_akhir' => $saldoAkhirReal,
+                    'keterangan' => "Update anggaran Laporan #{$report->id}. ".
+                                    "({$oldNominal} -> {$newNominal}) oleh {$userName}",
+                ]);
+            }
+
+            // 7. Tambahkan ke Komentar Laporan (Riwayat Sistem)
+            ReportComment::create([
+                'report_id' => $report->id,
+                'user_id' => auth()->id(),
+                'pesan' => 'Sistem: Anggaran diupdate dari [Rp '.number_format($oldNominal).
+                           '] menjadi [Rp '.number_format($newNominal)."] oleh {$userName}",
+            ]);
+
+            return back()->with('success', 'Anggaran dan Log berhasil diperbarui!');
         });
     }
 }
