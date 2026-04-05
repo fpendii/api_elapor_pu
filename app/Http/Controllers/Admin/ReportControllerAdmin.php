@@ -17,25 +17,37 @@ class ReportControllerAdmin extends Controller
         $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
 
         // 1. Ambil counts (Tetap sama)
-        $countsFromDb = Report::selectRaw('status, count(*) as total')
+        $countsFromDb = \App\Models\Report::selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $count = collect($listStatus)->mapWithKeys(fn ($s) => [
+        $count = collect($listStatus)->mapWithKeys(fn($s) => [
             $s => $countsFromDb->get($s, 0),
         ])->toArray();
 
         $query = \App\Models\Report::with('user');
 
-        // Terapkan filter status
+        // Terapkan filter status jika bukan 'Semua'
         if ($status !== 'Semua') {
             $query->where('status', $status);
         }
 
-        // Eksekusi Pagination LANGSUNG dari query builder
-        $reports = $query->latest()->paginate(10);
+        // 2. Urutkan berdasarkan Prioritas (Darurat, Tinggi, Sedang, Rendah)
+        // Lalu urutkan berdasarkan yang terbaru (latest)
+        $query->orderByRaw("
+        CASE 
+            WHEN prioritas = 'Darurat' THEN 1
+            WHEN prioritas = 'Tinggi' THEN 2
+            WHEN prioritas = 'Sedang' THEN 3
+            WHEN prioritas = 'Rendah' THEN 4
+            ELSE 5 
+        END ASC
+    ")->latest();
 
-        // Tambahkan query string secara manual (sebagai pengganti withQueryString)
+        // Eksekusi Pagination
+        $reports = $query->paginate(10);
+
+        // Tambahkan query string agar pagination tetap membawa filter status
         $reports->appends(['status' => $status]);
 
         return view('admin.laporan.index', compact('reports', 'status', 'count'));
@@ -196,7 +208,7 @@ class ReportControllerAdmin extends Controller
 
             // 3. Cek apakah saldo cukup untuk nominal baru
             if ($jenisRab->dana < $newNominal) {
-                return back()->with('error', 'Saldo dana '.$jenisRab->nama_rab.' tidak mencukupi!');
+                return back()->with('error', 'Saldo dana ' . $jenisRab->nama_rab . ' tidak mencukupi!');
             }
 
             // 4. Potong saldo dengan nominal baru
@@ -222,8 +234,8 @@ class ReportControllerAdmin extends Controller
                     'nominal_penggunaan' => $selisih, // Positif jika nambah penggunaan, negatif jika berkurang
                     'saldo_awal' => $saldoAwalReal,
                     'saldo_akhir' => $saldoAkhirReal,
-                    'keterangan' => "Update anggaran Laporan #{$report->id}. ".
-                                    "({$oldNominal} -> {$newNominal}) oleh {$userName}",
+                    'keterangan' => "Update anggaran Laporan #{$report->id}. " .
+                        "({$oldNominal} -> {$newNominal}) oleh {$userName}",
                 ]);
             }
 
@@ -231,8 +243,8 @@ class ReportControllerAdmin extends Controller
             ReportComment::create([
                 'report_id' => $report->id,
                 'user_id' => auth()->id(),
-                'pesan' => 'Sistem: Anggaran diupdate dari [Rp '.number_format($oldNominal).
-                           '] menjadi [Rp '.number_format($newNominal)."] oleh {$userName}",
+                'pesan' => 'Sistem: Anggaran diupdate dari [Rp ' . number_format($oldNominal) .
+                    '] menjadi [Rp ' . number_format($newNominal) . "] oleh {$userName}",
             ]);
 
             return back()->with('success', 'Anggaran dan Log berhasil diperbarui!');
