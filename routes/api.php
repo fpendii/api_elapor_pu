@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\UserController;
 
 // Tanpa middleware auth:sanctum
 Route::get('/user-profile/{id}', [UserController::class, 'show']);
+Route::put('/users/{id}', [UserController::class, 'update']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
