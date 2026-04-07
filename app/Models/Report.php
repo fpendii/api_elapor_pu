@@ -18,6 +18,7 @@ class Report extends Model
         'foto_kerusakan',
         'jenis_usulan',
         'jenis_rab_id',
+        'prioritas',
 
         // AI RESULT
         'ai_analysis',

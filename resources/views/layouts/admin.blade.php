@@ -165,7 +165,8 @@
     <aside class="sidebar position-fixed">
         <div class="brand">
             <div class="brand-icon">
-                <i class="bi bi-megaphone-fill"></i>
+                {{-- <i class="bi bi-megaphone-fill"></i> --}}
+                 <img src="/image/logo_pu.png" alt="Logo SDA ON CALL" style="width: 50px">
             </div>
             <h2 class="mb-0 fw-bold text-dark tracking-tight">SOC</h2>
         </div>

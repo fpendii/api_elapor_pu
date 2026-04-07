@@ -55,18 +55,18 @@
         }
 
         .brand-logo {
-            width: 65px;
-            height: 65px;
-            background: var(--soc-yellow);
+            width: 80px;
+            height: 80px;
+            /* background: var(--soc-yellow); */
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1rem;
-            color: var(--soc-dark-blue);
+            /* color: var(--soc-dark-blue); */
             font-weight: 800;
             font-size: 1.6rem;
-            box-shadow: 0 8px 15px rgba(255, 193, 7, 0.3);
+            /* box-shadow: 0 8px 15px rgba(255, 193, 7, 0.3); */
         }
 
         .system-title {
@@ -154,7 +154,8 @@
         <div class="login-card mx-auto">
             
             <div class="text-center">
-                <div class="brand-logo">SOC</div>
+                {{-- <div class="brand-logo"></div> --}}
+                <img src="/image/logo_pu.png" alt="Logo SDA ON CALL" class="brand-logo">
                 <h3 class="system-title">SDA ON CALL</h3>
                 <p class="system-subtitle">Portal Pelaporan Internal</p>
             </div>

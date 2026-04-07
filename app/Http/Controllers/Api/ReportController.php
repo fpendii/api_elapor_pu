@@ -49,6 +49,7 @@ class ReportController extends Controller
             'deskripsi'        => 'required',
             'foto_kerusakan'   => 'required|array',
             'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'prioritas' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -70,6 +71,7 @@ class ReportController extends Controller
                 'judul'        => $request->judul,
                 'lokasi'       => $request->lokasi,
                 'deskripsi'    => $request->deskripsi,
+                'prioritas'    => $request->prioritas
                 // 'status'       => 'Menunggu',
             ]);
 
