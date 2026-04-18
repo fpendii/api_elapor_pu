@@ -191,7 +191,7 @@
                 href="{{ url('admin/logs/penggunaan-dpa') }}">
                 {{-- ikon log --}}
                 <i class="bi bi-list-task"></i>
-                <span>Log DPA</span>
+                <span>Log Anggaran Kegiatan</span>
             </a>
 
             <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}"
@@ -205,10 +205,10 @@
             <small class="text-uppercase text-muted fw-bold mb-3 d-block ms-2"
                 style="font-size: 0.65rem; letter-spacing: 1px;">Pengaturan</small>
 
-            <a class="nav-link {{ request()->is('admin/jenis-dap*') ? 'active' : '' }}"
-                href="{{ url('admin/jenis-dap') }}">
+            <a class="nav-link {{ request()->is('admin/kategori-kegiatan*') ? 'active' : '' }}"
+                href="{{ url('admin/kategori-kegiatan') }}">
                 <i class="bi bi-list-task"></i>
-                <span>Jenis DAP</span>
+                <span>Kategori Kegiatan</span>
             </a>
 
             <a class="nav-link {{ request()->is('admin/profile*') ? 'active' : '' }}"

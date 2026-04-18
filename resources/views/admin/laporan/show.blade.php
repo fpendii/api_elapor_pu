@@ -105,7 +105,7 @@
                         <div class="p-3 border rounded bg-light h-100 shadow-sm">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="text-muted small text-uppercase fw-bold mb-0">
-                                    <is class="fas fa-tags me-1 text-primary"></is> Jenis DPA
+                                    <is class="fas fa-tags me-1 text-primary"></is> Jenis Kegiatan
                                 </label>
 
                                 {{-- Tombol ubah muncul jika status Verifikasi atau Penetapan --}}
@@ -139,7 +139,7 @@
                             <div class="modal-content border-0 shadow-lg">
                                 <div class="modal-header bg-primary text-white">
                                     <h5 class="modal-title" id="modalGantiDPALabel">
-                                        <i class="fas fa-tasks me-2"></i> Pilih Jenis DPA
+                                        <i class="fas fa-tasks me-2"></i> Pilih Jenis Kegiatan
                                     </h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
@@ -269,7 +269,7 @@
                             <div class="row g-4">
                                 {{-- Input Nominal --}}
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-bold text-muted text-uppercase">Nominal RAB
+                                    <label class="form-label small fw-bold text-muted text-uppercase">Nominal Dana Kegiatan
                                         (Rp)</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light fw-bold">Rp</span>
@@ -277,8 +277,7 @@
                                             class="form-control form-control-lg @if($report->status !== 'Penetapan') bg-light @endif"
                                             placeholder="0"
                                             value="{{ number_format($report->nominal_rab, 0, ',', '.') }}" {{-- Kunci
-                                            input jika bukan Penetapan --}} {{ $report->status !== 'Penetapan' ?
-                                        'readonly' : '' }}>
+                                            input jika bukan Penetapan --}}>
 
                                         <input type="hidden" name="nominal_rab" id="nominal_rab_real"
                                             value="{{ $report->nominal_rab }}">
@@ -308,7 +307,7 @@
                                         <div class="d-flex align-items-center">
                                             <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
                                             <div>
-                                                <div class="fw-bold mb-0">Dokumen RAB</div>
+                                                <div class="fw-bold mb-0">Dokumen Lampiran</div>
                                                 <small class="text-muted">File sudah diunggah.</small>
                                             </div>
                                         </div>
@@ -321,14 +320,14 @@
                                 @endif
 
                                 {{-- Tombol Simpan Hanya Muncul di Status Penetapan --}}
-                                @if ($report->status === 'Penetapan')
+                                {{-- @if ($report->status === 'Penetapan') --}}
                                 <div class="col-12 text-end mt-4">
                                     <hr>
                                     <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
                                         <i class="fas fa-check-circle me-1"></i> Simpan & Perbarui Anggaran
                                     </button>
                                 </div>
-                                @endif
+                                {{-- @endif --}}
                             </div>
                         </form>
                     </div>
