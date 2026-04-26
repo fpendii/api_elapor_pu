@@ -43,7 +43,6 @@ class UserController extends Controller
             return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
 
-        // Update data dasar
         $user->name = $request->name ?? $user->name;
         $user->nik = $request->nik ?? $user->nik;
         $user->nomor_wa = $request->nomor_wa ?? $user->nomor_wa;
@@ -51,12 +50,18 @@ class UserController extends Controller
         $user->alamat = $request->alamat ?? $user->alamat;
         $user->jenis_kelamin = $request->jenis_kelamin ?? $user->jenis_kelamin;
 
-        // Logika Ganti Password
         if ($request->filled('password')) {
-            $user->password = bcrypt($request->password); // Enkripsi password sebelum simpan
+            $user->password = bcrypt($request->password);
         }
 
-        $user->save(); // Simpan perubahan ke MariaDB
+        if (!$user->isDirty()) {
+            return response()->json([
+                'status' => 'info',
+                'message' => 'Tidak ada perubahan data'
+            ], 200);
+        }
+
+        $user->save();
 
         return response()->json([
             'status' => 'success',

@@ -667,6 +667,16 @@
                             <div class="fw-bold text-dark small">{{ $report->created_at->format('d M Y, H:i') }}</div>
                         </div>
                     </div>
+                    <div class="d-flex align-items-center mt-3 mb-3">
+                        <div class="icon-box bg-light text-success me-3"><i class="fab fa-whatsapp"></i></div>
+                        <div>
+                            <div class="small text-muted">Nomer Pelapor</div>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $report->nomer_pelapor) }}"
+                                target="_blank" class="fw-bold text-success text-decoration-none">
+                                {{ $report->nomer_pelapor }}
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

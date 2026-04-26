@@ -39,6 +39,7 @@ class ReportController extends Controller
 
     public function store(Request $request)
     {
+        Log::info($request->all());
         // 1. VALIDASI
         $validator = Validator::make($request->all(), [
             'user_id'          => 'required',
@@ -49,7 +50,8 @@ class ReportController extends Controller
             'deskripsi'        => 'required',
             'foto_kerusakan'   => 'required|array',
             'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
-            'prioritas' => 'required'
+            // 'prioritas' => 'required'
+            'nomer_pelapor'    => 'nullable|string|max:15',
         ]);
 
         if ($validator->fails()) {
@@ -71,8 +73,9 @@ class ReportController extends Controller
                 'judul'        => $request->judul,
                 'lokasi'       => $request->lokasi,
                 'deskripsi'    => $request->deskripsi,
-                'prioritas'    => $request->prioritas
+                'prioritas'    => $request->prioritas,
                 // 'status'       => 'Menunggu',
+                'nomer_pelapor' => $request->nomer_pelapor,
             ]);
 
             // 3. SIMPAN BANYAK FOTO (Kode tetap sama)

@@ -134,9 +134,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     | Profile
     |--------------------------------------------------------------------------
     */
-    Route::get('/admin/profile', [ProfileControllerAdmin::class, 'index'])->name('profile.index');
-    Route::get('/admin/profile/edit', [ProfileControllerAdmin::class, 'edit'])->name('profile.edit');
-    Route::put('/admin/profile', [ProfileControllerAdmin::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileControllerAdmin::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileControllerAdmin::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileControllerAdmin::class, 'update'])->name('profile.update');
 
     /*
      |--------------------------------------------------------------------------

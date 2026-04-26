@@ -13,6 +13,7 @@ class ReportControllerAdmin extends Controller
 {
     public function index(Request $request)
     {
+       
         $status = $request->query('status', 'Semua');
         $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
 

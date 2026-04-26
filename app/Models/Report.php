@@ -26,6 +26,7 @@ class Report extends Model
         'ai_severity',
 
         'status',
+        'nomer_pelapor'
     ];
 
     public function user()

@@ -49,7 +49,7 @@ class DashboardControllerAdmin extends Controller
         END DESC
     ")
     ->orderBy('created_at', 'asc') // tanggal paling lama
-    ->take(5)
+    ->take(7)
     ->get();
 
         return view('admin.dashboard.index', compact('stats', 'recent_reports'));
