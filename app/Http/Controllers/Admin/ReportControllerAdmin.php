@@ -13,7 +13,7 @@ class ReportControllerAdmin extends Controller
 {
     public function index(Request $request)
     {
-       
+
         $status = $request->query('status', 'Semua');
         $listStatus = ['Proposal', 'Verifikasi', 'Penetapan', 'Pelaksanaan', 'Pemeriksaan', 'Selesai'];
 
@@ -127,6 +127,22 @@ class ReportControllerAdmin extends Controller
         $userName = auth()->user()->name;
 
         // ... (Logika prioritas dan kategori tetap sama)
+        // ✅ HANDLE PRIORITAS
+        if ($request->type === 'prioritas') {
+            $oldPrioritas = $report->prioritas;
+
+            $report->prioritas = $value;
+            $report->save();
+
+            ReportComment::create([
+                'report_id' => $id,
+                'user_id' => auth()->id(),
+                'pesan' => "Sistem: Prioritas diubah dari [{$oldPrioritas}] menjadi [{$value}] oleh {$userName}",
+            ]);
+
+            return back()->with('success', 'Prioritas berhasil diperbarui!');
+        }
+
 
         // 3. DEFAULT: UPDATE STATUS LAPORAN
         $oldStatus = $report->status;

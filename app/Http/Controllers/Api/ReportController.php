@@ -48,7 +48,7 @@ class ReportController extends Controller
             'judul'            => 'required',
             'lokasi'           => 'required',
             'deskripsi'        => 'required',
-            'foto_kerusakan'   => 'required|array',
+            'foto_kerusakan'   => 'required',
             'foto_kerusakan.*' => 'image|mimes:jpeg,png,jpg|max:5120',
             // 'prioritas' => 'required'
             'nomer_pelapor'    => 'nullable|string|max:15',
